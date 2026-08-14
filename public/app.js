@@ -216,10 +216,40 @@ function createPanelElement(panel, index) {
     visualArea.appendChild(soundBadge);
   }
 
-  const graphicContainer = document.createElement("div");
-  graphicContainer.className = "visual-graphic";
-  graphicContainer.innerHTML = generatePanelSvgGraphic(panel, index, accentColor);
-  visualArea.appendChild(graphicContainer);
+  // Character Center Stage with Visual Actors
+  const stageContainer = document.createElement("div");
+  stageContainer.className = "character-stage-container";
+
+  let stageHtml = `<div class="stage-actors-wrapper">`;
+  if (panel.character1 && panel.character1.name) {
+    const avatar1 = panel.character1.avatar || (panel.character1.voiceGender === "female" ? "👩" : "👨");
+    stageHtml += `
+      <div class="stage-actor actor-left">
+        <div class="actor-glow-ring">
+          <span class="actor-emoji">${avatar1}</span>
+        </div>
+        <span class="actor-name">${panel.character1.name}</span>
+        <span class="actor-mood">${panel.character1.emotion || 'ready'}</span>
+      </div>
+    `;
+  }
+
+  if (panel.character2 && panel.character2.name && panel.character2.dialogue) {
+    const avatar2 = panel.character2.avatar || (panel.character2.voiceGender === "female" ? "👩" : "🤖");
+    stageHtml += `
+      <div class="stage-vs-badge">VS</div>
+      <div class="stage-actor actor-right">
+        <div class="actor-glow-ring">
+          <span class="actor-emoji">${avatar2}</span>
+        </div>
+        <span class="actor-name">${panel.character2.name}</span>
+        <span class="actor-mood">${panel.character2.emotion || 'reacting'}</span>
+      </div>
+    `;
+  }
+  stageHtml += `</div>`;
+  stageContainer.innerHTML = stageHtml;
+  visualArea.appendChild(stageContainer);
 
   const dialoguesDiv = document.createElement("div");
   dialoguesDiv.className = "panel-dialogues";

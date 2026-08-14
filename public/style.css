@@ -677,6 +677,105 @@ input:checked + .toggle-slider:before {
   object-fit: cover;
 }
 
+/* Character Center Stage */
+.character-stage-container {
+  position: relative;
+  z-index: 4;
+  margin: 0.5rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.stage-actors-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  padding: 0.75rem 1.25rem;
+  border-radius: 1.25rem;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.stage-actor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.2rem;
+  transition: transform 0.3s ease;
+}
+
+.actor-left {
+  animation: floatActorLeft 4s infinite ease-in-out;
+}
+
+.actor-right {
+  animation: floatActorRight 4s infinite ease-in-out;
+}
+
+.actor-glow-ring {
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, #fef08a 0%, #f59e0b 70%, #000 100%);
+  border: 3px solid #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.6), 3px 3px 0px #000;
+}
+
+.actor-emoji {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.actor-name {
+  font-family: var(--font-comic);
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  color: var(--accent-yellow);
+  text-shadow: 1px 1px 0px #000;
+  white-space: nowrap;
+}
+
+.actor-mood {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.3rem;
+  text-transform: capitalize;
+}
+
+.stage-vs-badge {
+  font-family: var(--font-comic);
+  font-size: 1.1rem;
+  color: #ec4899;
+  background: #000;
+  border: 2px solid #ec4899;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.4rem;
+  transform: rotate(-10deg);
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+}
+
+@keyframes floatActorLeft {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-4px) rotate(2deg); }
+}
+
+@keyframes floatActorRight {
+  0%, 100% { transform: translateY(0) rotate(2deg); }
+  50% { transform: translateY(-4px) rotate(-2deg); }
+}
+
 .sound-badge {
   position: absolute;
   top: 1rem;
