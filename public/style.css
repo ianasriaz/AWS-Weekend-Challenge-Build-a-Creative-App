@@ -801,22 +801,38 @@ input:checked + .toggle-slider:before {
 }
 
 .bubble-speaker {
-  font-family: var(--font-comic);
-  font-size: 0.82rem;
-  color: #475569;
-  display: flex;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  margin-bottom: 0.15rem;
+  gap: 0.35rem;
+  margin-bottom: 0.3rem;
+  background: rgba(15, 23, 42, 0.07);
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  border-left: 3px solid #f59e0b;
+}
+
+.speech-bubble.char-right .bubble-speaker {
+  border-left-color: #0284c7;
 }
 
 .bubble-text-editable {
   outline: none;
   cursor: text;
+  font-family: var(--font-bubble);
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1.35;
 }
 
 .bubble-text-editable:focus {
-  background: rgba(254, 240, 138, 0.5);
+  background: rgba(254, 240, 138, 0.6);
   border-radius: 0.25rem;
 }
 
