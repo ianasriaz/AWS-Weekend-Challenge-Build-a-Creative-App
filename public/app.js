@@ -1,15 +1,13 @@
 // ==========================================================================
-// ComicCraft AI Studio & Live AI Roaster – Frontend Engine
+// ComicCraft AI Studio – Frontend Engine
 // ==========================================================================
 
 let currentComic = null;
-let currentRoast = null;
 let currentAudio = null;
 let isPlayingStory = false;
 let cinemaCurrentIndex = 0;
-let currentMode = "comic"; // "comic" | "roast"
 
-// Web Audio Synthesizer
+// Web Audio API Synthesizer
 let audioCtx = null;
 function getAudioContext() {
   if (!audioCtx) {
@@ -21,7 +19,7 @@ function getAudioContext() {
   return audioCtx;
 }
 
-// Zero-Dependency Comedy & Comic Sound Synthesizer
+// Zero-Dependency Comic SFX Synthesizer
 function playSfx(type = "pow") {
   try {
     const ctx = getAudioContext();
@@ -39,52 +37,24 @@ function playSfx(type = "pow") {
       gain.connect(ctx.destination);
       osc.start(now);
       osc.stop(now + 0.25);
-    } else if (type === "kaboom" || type === "vine-boom") {
-      // Deep heavy bass drop boom
-      const osc = ctx.createOscillator();
+    } else if (type === "kaboom") {
+      const bufferSize = ctx.sampleRate * 0.4;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(400, now);
+      filter.frequency.linearRampToValueAtTime(50, now + 0.4);
       const gain = ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(140, now);
-      osc.frequency.exponentialRampToValueAtTime(25, now + 0.6);
-      gain.gain.setValueAtTime(0.8, now);
-      gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
-      osc.connect(gain);
+      gain.gain.setValueAtTime(0.5, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+      noise.connect(filter);
+      filter.connect(gain);
       gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.6);
-    } else if (type === "sad-trombone") {
-      // Classic Wah-Wah-Wah-Waaaaah
-      const notes = [293.66, 277.18, 261.63, 246.94]; // D4, C#4, C4, B3
-      notes.forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(freq, now + i * 0.3);
-        if (i === 3) {
-          // Slide down on last note
-          osc.frequency.linearRampToValueAtTime(200, now + i * 0.3 + 0.6);
-        }
-        gain.gain.setValueAtTime(0.2, now + i * 0.3);
-        gain.gain.linearRampToValueAtTime(0.01, now + i * 0.3 + (i === 3 ? 0.6 : 0.25));
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now + i * 0.3);
-        osc.stop(now + i * 0.3 + (i === 3 ? 0.6 : 0.25));
-      });
-    } else if (type === "airhorn") {
-      // Reggae Airhorn sound
-      [587.33, 587.33, 587.33, 587.33].forEach((f, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "square";
-        osc.frequency.setValueAtTime(f, now + i * 0.12);
-        gain.gain.setValueAtTime(0.25, now + i * 0.12);
-        gain.gain.linearRampToValueAtTime(0.01, now + i * 0.12 + 0.1);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now + i * 0.12);
-        osc.stop(now + i * 0.12 + 0.1);
-      });
+      noise.start(now);
     } else if (type === "sparkle") {
       [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
         const osc = ctx.createOscillator();
@@ -98,18 +68,18 @@ function playSfx(type = "pow") {
         osc.start(now + i * 0.06);
         osc.stop(now + i * 0.06 + 0.2);
       });
-    } else if (type === "boing" || type === "laugh-track") {
+    } else if (type === "boing") {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
       osc.frequency.setValueAtTime(140, now);
-      osc.frequency.linearRampToValueAtTime(500, now + 0.3);
+      osc.frequency.linearRampToValueAtTime(480, now + 0.25);
       gain.gain.setValueAtTime(0.3, now);
-      gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.3);
+      osc.stop(now + 0.25);
     } else if (type === "woosh") {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -124,19 +94,15 @@ function playSfx(type = "pow") {
       osc.stop(now + 0.2);
     }
   } catch (e) {
-    console.warn("SFX Error:", e);
+    console.warn("SFX warning:", e);
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) window.lucide.createIcons();
 
-  initTabs();
-  initComicSparks();
-  initRoastSparks();
-  initComicForm();
-  initRoastForm();
-  initSoundboard();
+  initSparks();
+  initForm();
   initStickers();
   initAudioControls();
   initCinemaMode();
@@ -144,35 +110,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initModal();
 });
 
-// 1. Mode Switcher Tabs
-function initTabs() {
-  const tabComic = document.getElementById("tabComicMode");
-  const tabRoast = document.getElementById("tabRoastMode");
-  const viewComic = document.getElementById("comicStudioView");
-  const viewRoast = document.getElementById("roastArenaView");
-
-  tabComic.addEventListener("click", () => {
-    playSfx("woosh");
-    currentMode = "comic";
-    tabComic.classList.add("active");
-    tabRoast.classList.remove("active");
-    viewComic.classList.remove("hidden");
-    viewRoast.classList.add("hidden");
-  });
-
-  tabRoast.addEventListener("click", () => {
-    playSfx("vine-boom");
-    currentMode = "roast";
-    tabRoast.classList.add("active");
-    tabComic.classList.remove("active");
-    viewRoast.classList.remove("hidden");
-    viewComic.classList.add("hidden");
-  });
-}
-
-// 2. Sparks
-function initComicSparks() {
-  const sparks = document.querySelectorAll("#sparksContainer .spark-btn");
+// 1. Sparks
+function initSparks() {
+  const sparks = document.querySelectorAll(".spark-btn");
   const promptInput = document.getElementById("promptInput");
   sparks.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -183,20 +123,8 @@ function initComicSparks() {
   });
 }
 
-function initRoastSparks() {
-  const sparks = document.querySelectorAll("#roastSparksContainer .spark-btn");
-  const roastInput = document.getElementById("roastInput");
-  sparks.forEach(btn => {
-    btn.addEventListener("click", () => {
-      playSfx("woosh");
-      roastInput.value = btn.dataset.roast;
-      roastInput.focus();
-    });
-  });
-}
-
-// 3. Comic Form
-function initComicForm() {
+// 2. Comic Form
+function initForm() {
   const form = document.getElementById("comicForm");
   const generateBtn = document.getElementById("generateBtn");
   const btnText = generateBtn.querySelector(".btn-text");
@@ -223,12 +151,14 @@ function initComicForm() {
       const data = await response.json();
       if (data.success && data.comic) {
         currentComic = data.comic;
-        renderComicGrid(data.comic, "comicGrid");
+        renderComic(data.comic);
         playSfx("sparkle");
+      } else {
+        alert(`Notice: ${data.error || "Please try again"}`);
       }
     } catch (err) {
       console.error(err);
-      alert("Error generating comic");
+      alert("Failed to connect to AWS backend.");
     } finally {
       generateBtn.disabled = false;
       btnText.classList.remove("hidden");
@@ -237,80 +167,17 @@ function initComicForm() {
   });
 }
 
-// 4. Live Roast Form
-function initRoastForm() {
-  const form = document.getElementById("roastForm");
-  const roastBtn = document.getElementById("roastBtn");
-  const btnText = roastBtn.querySelector(".btn-text");
-  const btnLoader = roastBtn.querySelector(".btn-loader");
+// 3. Render 4-Panel Comic Strip
+function renderComic(comic) {
+  document.getElementById("comicTitleDisplay").textContent = comic.title || "The Story";
+  document.getElementById("comicGenreDisplay").textContent = comic.genre || "Comic Strip";
+  document.getElementById("comicLoglineDisplay").textContent = `"${comic.logline || ''}"`;
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const description = document.getElementById("roastInput").value.trim();
-    if (!description) return;
+  document.getElementById("playFullStoryBtn").disabled = false;
+  document.getElementById("cinemaModeBtn").disabled = false;
+  document.getElementById("exportPngBtn").disabled = false;
 
-    playSfx("vine-boom");
-    roastBtn.disabled = true;
-    btnText.classList.add("hidden");
-    btnLoader.classList.remove("hidden");
-
-    try {
-      const response = await fetch("/api/roast-me", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description })
-      });
-
-      const data = await response.json();
-      if (data.success && data.roast) {
-        currentRoast = data.roast;
-        renderRoastResults(data.roast);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error generating roast");
-    } finally {
-      roastBtn.disabled = false;
-      btnText.classList.remove("hidden");
-      btnLoader.classList.add("hidden");
-    }
-  });
-}
-
-// Render Roast Results
-function renderRoastResults(roast) {
-  document.getElementById("burnBadge").textContent = roast.burnLevel || "🔥 EMOTIONAL DAMAGE 💀";
-  document.getElementById("roastHeadline").textContent = roast.roastTitle || "The Catastrophe";
-  document.getElementById("roastOneLiner").textContent = `"${roast.punchlineOneLiner || ''}"`;
-  document.getElementById("roastMonologue").textContent = roast.savageRoast || "";
-
-  document.getElementById("playRoastVoiceBtn").disabled = false;
-  document.getElementById("exportRoastCardBtn").disabled = false;
-
-  // Trigger recommended comedy sound stinger
-  if (roast.recommendedSfx === "sad-trombone") playSfx("sad-trombone");
-  else if (roast.recommendedSfx === "airhorn") playSfx("airhorn");
-  else playSfx("vine-boom");
-
-  // Render accompanying 4-panel roast comic strip
-  if (roast.comic && roast.comic.panels) {
-    currentComic = roast.comic;
-    renderComicGrid(roast.comic, "roastComicGrid");
-  }
-}
-
-// Render Comic Grid into Target Container
-function renderComicGrid(comic, targetContainerId) {
-  if (targetContainerId === "comicGrid") {
-    document.getElementById("comicTitleDisplay").textContent = comic.title || "The Story";
-    document.getElementById("comicGenreDisplay").textContent = comic.genre || "Comic Strip";
-    document.getElementById("comicLoglineDisplay").textContent = `"${comic.logline || ''}"`;
-    document.getElementById("playFullStoryBtn").disabled = false;
-    document.getElementById("cinemaModeBtn").disabled = false;
-    document.getElementById("exportPngBtn").disabled = false;
-  }
-
-  const grid = document.getElementById(targetContainerId);
+  const grid = document.getElementById("comicGrid");
   grid.innerHTML = "";
 
   comic.panels.forEach((panel, idx) => {
@@ -418,19 +285,10 @@ function generatePanelSvgGraphic(panel, index, accent) {
   return seeds[index % seeds.length];
 }
 
-// 5. Soundboard
-function initSoundboard() {
-  const sfxButtons = document.querySelectorAll(".sfx-btn");
-  sfxButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      playSfx(btn.dataset.sfx);
-    });
-  });
-}
-
-// 6. Voice Synthesis
+// 4. Multi-Voice Duet Playback
 async function playPanelVoice(panel, panelElement) {
-  const narratorVoice = document.getElementById("voiceSelect")?.value || "Ruth";
+  const isDuet = document.getElementById("duetToggle").checked;
+  const narratorVoice = document.getElementById("voiceSelect").value || "Ruth";
   const char1Voice = panel.character1?.voiceGender === "male" ? "Matthew" : "Ruth";
   const char2Voice = panel.character2?.voiceGender === "female" ? "Joanna" : "Stephen";
 
@@ -438,37 +296,64 @@ async function playPanelVoice(panel, panelElement) {
   panelElement.classList.add("active-voice");
   setEqualizerState(true);
 
-  const parts = [];
-  if (panel.caption) parts.push({ text: panel.caption, voiceId: narratorVoice, speaker: "Narrator" });
-  if (panel.character1?.dialogue) parts.push({ text: panel.character1.dialogue, voiceId: char1Voice, speaker: panel.character1.name });
-  if (panel.character2?.dialogue) parts.push({ text: panel.character2.dialogue, voiceId: char2Voice, speaker: panel.character2.name });
+  if (isDuet) {
+    const parts = [];
+    if (panel.caption) parts.push({ text: panel.caption, voiceId: narratorVoice, speaker: "Narrator" });
+    if (panel.character1?.dialogue) parts.push({ text: panel.character1.dialogue, voiceId: char1Voice, speaker: panel.character1.name });
+    if (panel.character2?.dialogue) parts.push({ text: panel.character2.dialogue, voiceId: char2Voice, speaker: panel.character2.name });
 
-  try {
-    const res = await fetch("/api/synthesize-duet", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ parts })
-    });
-    const data = await res.json();
-    if (data.success && data.clips) {
-      for (const clip of data.clips) {
-        await new Promise((resolve) => {
-          currentAudio = new Audio(clip.audioBase64);
-          currentAudio.play();
-          currentAudio.onended = () => resolve();
-          currentAudio.onerror = () => resolve();
-        });
+    try {
+      const res = await fetch("/api/synthesize-duet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parts })
+      });
+      const data = await res.json();
+      if (data.success && data.clips) {
+        for (const clip of data.clips) {
+          await new Promise((resolve) => {
+            currentAudio = new Audio(clip.audioBase64);
+            currentAudio.play();
+            currentAudio.onended = () => resolve();
+            currentAudio.onerror = () => resolve();
+          });
+        }
       }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      panelElement.classList.remove("active-voice");
+      setEqualizerState(false);
     }
-  } catch (err) {
-    console.error(err);
-  } finally {
-    panelElement.classList.remove("active-voice");
-    setEqualizerState(false);
+  } else {
+    let spokenScript = `${panel.caption || ''}. `;
+    if (panel.character1?.dialogue) spokenScript += `${panel.character1.dialogue}. `;
+    if (panel.character2?.dialogue) spokenScript += `${panel.character2.dialogue}. `;
+
+    try {
+      const res = await fetch("/api/synthesize-voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: spokenScript, voiceId: narratorVoice })
+      });
+      const data = await res.json();
+      if (data.success && data.audioBase64) {
+        if (currentAudio) currentAudio.pause();
+        currentAudio = new Audio(data.audioBase64);
+        currentAudio.play();
+        currentAudio.onended = () => {
+          panelElement.classList.remove("active-voice");
+          setEqualizerState(false);
+        };
+      }
+    } catch (err) {
+      panelElement.classList.remove("active-voice");
+      setEqualizerState(false);
+    }
   }
 }
 
-// Audio Controls & Roast Voice
+// 5. Audio Controls
 function initAudioControls() {
   const playStoryBtn = document.getElementById("playFullStoryBtn");
   const playStoryText = document.getElementById("playStoryBtnText");
@@ -480,6 +365,7 @@ function initAudioControls() {
       isPlayingStory = false;
       playStoryText.textContent = "Play Voiced Story";
       setEqualizerState(false);
+      document.querySelectorAll(".comic-panel").forEach(p => p.classList.remove("active-voice"));
       return;
     }
 
@@ -498,41 +384,6 @@ function initAudioControls() {
     playStoryText.textContent = "Play Voiced Story";
     setEqualizerState(false);
   });
-
-  // Play Spoken Roast
-  const playRoastBtn = document.getElementById("playRoastVoiceBtn");
-  playRoastBtn.addEventListener("click", async () => {
-    if (!currentRoast?.savageRoast) return;
-    const voiceId = document.getElementById("roastVoiceSelect")?.value || "Matthew";
-
-    playSfx("airhorn");
-    setEqualizerState(true);
-    playRoastBtn.disabled = true;
-
-    try {
-      const res = await fetch("/api/synthesize-voice", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: `${currentRoast.punchlineOneLiner}. ${currentRoast.savageRoast}`,
-          voiceId
-        })
-      });
-      const data = await res.json();
-      if (data.success && data.audioBase64) {
-        if (currentAudio) currentAudio.pause();
-        currentAudio = new Audio(data.audioBase64);
-        currentAudio.play();
-        currentAudio.onended = () => {
-          setEqualizerState(false);
-          playRoastBtn.disabled = false;
-        };
-      }
-    } catch (err) {
-      setEqualizerState(false);
-      playRoastBtn.disabled = false;
-    }
-  });
 }
 
 function setEqualizerState(active) {
@@ -543,7 +394,7 @@ function setEqualizerState(active) {
   }
 }
 
-// 7. Panel Reroll
+// 6. Panel Reroll
 async function rerollPanel(panelNumber, panelElement) {
   if (!currentComic) return;
   playSfx("woosh");
@@ -573,7 +424,7 @@ async function rerollPanel(panelNumber, panelElement) {
   }
 }
 
-// 8. Action Stickers
+// 7. Action Stickers
 function initStickers() {
   const stickers = document.querySelectorAll(".sticker-item");
   stickers.forEach(sticker => {
@@ -593,6 +444,7 @@ function initStickers() {
         newSticker.style.left = `${Math.floor(Math.random() * 50) + 10}%`;
         newSticker.style.transform = `rotate(${Math.floor(Math.random() * 30) - 15}deg)`;
         newSticker.style.cursor = "pointer";
+        newSticker.title = "Click to remove sticker";
         newSticker.addEventListener("click", () => {
           playSfx("woosh");
           newSticker.remove();
@@ -603,7 +455,7 @@ function initStickers() {
   });
 }
 
-// 9. Cinema Mode
+// 8. Cinema Mode
 function initCinemaMode() {
   const cinemaBtn = document.getElementById("cinemaModeBtn");
   const cinemaModal = document.getElementById("cinemaModal");
@@ -661,34 +513,25 @@ function renderCinemaPanel() {
   playPanelVoice(panel, panelEl);
 }
 
-// 10. Exporter
+// 9. Exporter
 function initExport() {
   const exportBtn = document.getElementById("exportPngBtn");
-  const exportRoastBtn = document.getElementById("exportRoastCardBtn");
-
   exportBtn.addEventListener("click", () => {
-    exportElementToPng("comicStripExportArea", `comic-${Date.now()}`);
-  });
+    const comicArea = document.getElementById("comicStripExportArea");
+    if (!comicArea) return;
+    playSfx("sparkle");
 
-  exportRoastBtn.addEventListener("click", () => {
-    exportElementToPng("roastBannerArea", `roast-${Date.now()}`);
+    html2canvas(comicArea, { backgroundColor: "#090a10", scale: 2, useCORS: true }).then(canvas => {
+      const link = document.createElement("a");
+      const titleSlug = (currentComic?.title || "comic").toLowerCase().replace(/[^a-z0-9]/g, "-");
+      link.download = `comiccraft-${titleSlug}-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }).catch(err => console.error(err));
   });
 }
 
-function exportElementToPng(elementId, filename) {
-  const area = document.getElementById(elementId);
-  if (!area) return;
-  playSfx("sparkle");
-
-  html2canvas(area, { backgroundColor: "#090a10", scale: 2, useCORS: true }).then(canvas => {
-    const link = document.createElement("a");
-    link.download = `${filename}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  }).catch(err => console.error(err));
-}
-
-// 11. Modal
+// 10. Modal
 function initModal() {
   const modal = document.getElementById("aboutModal");
   const openBtn = document.getElementById("openAboutBtn");

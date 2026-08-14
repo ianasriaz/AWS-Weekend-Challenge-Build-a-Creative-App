@@ -1,4 +1,4 @@
-# Weekend Creative Challenge: ComicCraft AI & Live Roaster Arena
+# Weekend Creative Challenge: ComicCraft AI Studio
 
 **Tag:** `#creative-expression`
 
@@ -6,118 +6,119 @@
 
 ## 🌟 Vision & What the App Does
 
-Creativity is at its best when it connects with people through humor, storytelling, and play. For the **AWS Weekend Creative Challenge**, we built **ComicCraft AI & Live Roaster Arena**—a dual-mode generative creative powerhouse that turns everyday thoughts, bugs, and embarrassing tech disasters into **voiced 4-panel comic strips** and **savage standup AI roasts**.
+Creativity is most powerful when it sparks joy, humor, and imagination. Comics have connected audiences across generations through a unique marriage of storytelling, visual punchlines, expressive pacing, and memorable character banter. However, traditional comic creation demands specialized drawing skills, lettering expertise, and extensive manual production.
 
-The app encompasses two complete, interconnected creative studios:
+**ComicCraft AI Studio** is a multi-modal creative web application designed to democratize cartoon storytelling. Built for the **AWS Weekend Creative Challenge**, ComicCraft enables anyone—whether a developer, writer, or creative enthusiast—to transform any quirky idea or premise into a **fully illustrated, multi-voiced, and interactive 4-panel comic strip** in under five seconds.
 
-### 1. 💥 Comic Storyboard Studio
-Users provide any premise (or choose an inspiration spark), and **Amazon Bedrock (Nova Lite/Pro)** drafts a complete 4-panel narrative (Setup, Escalation, Climax, and Punchline) with character dialogue banter, scene descriptions, and classic sound effect stickers (*POW!*, *KABOOM!*, *404 ERROR!*).
-
-### 2. 🔥 Live AI Roaster Arena
-Users describe themselves, a friend, a coding catastrophe, or an over-engineered habit (e.g. *"I spent 4 days configuring Kubernetes on AWS just to host a static HTML resume with 3 visitors"*). 
-The AI Roaster immediately:
-- Calculates an animated **"EMOTIONAL DAMAGE 💀 (10/10)"** Burn Meter.
-- Writes a savage 3-paragraph spoken comedy monologue + tweetable punchline one-liner.
-- Generates an accompanying **4-panel Roast Comic Strip** visually illustrating the disaster!
-- Delivers voice acting through **Amazon Polly Neural TTS** with comedy sound effects (*Sad Trombone, Vine Boom, Airhorn, Laugh Track*).
+The application spans all four creative dimensions:
+1. **Words (Narrative & Dialogue):** Powered by **Amazon Bedrock** using the **Amazon Nova Lite & Pro** foundation models, the engine writes complete 4-panel narrative structures (Setup, Escalation, Climax/Twist, and Punchline) equipped with snappy dialogues, character personas, emotional cues, narrator captions, and classic comic sound effect tags (*POW!*, *KABOOM!*, *404 ERROR!*).
+2. **Images (Visual Comic Strip):** Renders dynamic, pop-art stylized panels with customized color gradients, retro halftone textures, visual scene backdrops, character badge avatars, and distinct speech bubbles.
+3. **Sound (Multi-Voice Duets & Web Audio SFX):** Powered by **Amazon Polly Neural Text-to-Speech (TTS)**, the app delivers multi-character voice duets (e.g. *Ruth* as the witty hero and *Matthew* as the sidekick), synthesized comic impact SFX (*POW!*, *KABOOM!*, *BOING!*), and sequential panel audio with synchronized equalizer pulsing.
+4. **Play (Interactive Studio, Cinema Mode & Panel Reroll):** Users aren't just passive readers—they can directly edit speech bubble text, stamp sound effect stickers onto panels, reroll individual punchline panels on the fly, launch a full-screen **Comic Cinema** slideshow, and export high-resolution comic posters with a single click.
 
 ---
 
-## 🎭 The 4 Creative Challenge Pillars
+## 🏗️ AWS Services Used & Architecture Overview
 
-1. **Words (Narrative & Standup Comedy):** Powered by **Amazon Bedrock (Amazon Nova Lite & Pro)** with structured JSON schemas via the `Converse API`.
-2. **Images (Pop-Art Comics & Roast Cards):** Generates retro halftone panels, dynamic visual gradients, generative SVG themes, and downloadable quote cards.
-3. **Sound (Multi-Voice Duets & Web Audio Soundboard):** Powered by **Amazon Polly Neural TTS** (*Ruth, Matthew, Stephen, Arthur, Joanna*) with character duets, combined with an in-browser Web Audio synthesizer for punchline stingers (*Sad Trombone, Vine Boom, Airhorn*).
-4. **Play (Live Roaster, Cinema Mode, & Direct Editing):** Users can edit dialogue bubbles, reroll individual comic panels, stamp interactive sound stickers, and enjoy full-screen slideshow presentations in **Cinema View**.
-
----
-
-## 🏗️ Architecture & AWS Services
+ComicCraft AI leverages a modern, serverless-oriented AWS architecture designed for low latency, high throughput, and cost-efficient creative generation:
 
 ```mermaid
 graph TD
-    subgraph Client [Frontend Creative Studio]
-        UI[🎨 Dual-Mode Web Studio <br/> ComicCraft + Live Roaster Arena]
-        Cinema[🎬 Fullscreen Comic Cinema]
-        Audio[🎧 Multi-Voice Polly Audio Engine]
-        SFX[🔊 Web Audio Comedy Soundboard <br/> Sad Trombone / Vine Boom / Airhorn]
+    subgraph Client [Frontend Studio Client]
+        UI[🎨 ComicCraft Pop-Art Web UI]
+        Cinema[🎬 Fullscreen Comic Cinema Mode]
+        Audio[🎧 Multi-Voice Duet Audio Engine]
+        SFX[🔊 Web Audio SFX Synthesizer]
         Canvas[🖼️ Canvas PNG Exporter]
     end
 
     subgraph Backend [Node.js Express API Server]
         Router[⚡ API Router & Orchestrator]
-        RoastEngine[🔥 Live Roaster & Reroll Handler]
+        Reroll[🔄 Single Panel Reroll Handler]
     end
 
     subgraph AWS [AWS Cloud Services - us-east-1]
         Bedrock[🤖 Amazon Bedrock <br/> us.amazon.nova-lite-v1:0 / Nova Pro]
         Polly[🔊 Amazon Polly <br/> Multi-Voice Neural TTS Engine]
-        S3[☁️ Amazon S3 <br/> Cloud Asset Storage]
+        S3[☁️ Amazon S3 <br/> Cloud Asset & Comic Storage]
     end
 
-    UI -->|1. Story Prompt or Roast Target| Router
-    Router -->|2. Converse API Structured Request| Bedrock
-    Bedrock -->|3. 4-Panel Script & Roast Monologue JSON| Router
-    Router -->|4. Render Story / Roast Data| UI
+    UI -->|1. Submit Prompt & Style| Router
+    Router -->|2. Converse API Request| Bedrock
+    Bedrock -->|3. Structured 4-Panel JSON| Router
+    Router -->|4. Render Comic Data| UI
 
-    UI -->|5. Voiceover / Duet Request| Router
+    UI -->|5. Multi-Voice Duet Request| Router
     Router -->|6. SynthesizeSpeechCommand| Polly
-    Polly -->|7. Binary Audio Streams| Router
-    Router -->|8. Base64 Audio Stream Delivery| Audio
+    Polly -->|7. Character Audio Streams| Router
+    Router -->|8. Audio Duet Delivery| Audio
 
-    Audio -->|9. Sequenced Speech & Equalizer Pulse| UI
-    SFX -->|10. Punchline SFX & Soundboard| UI
-    Canvas -->|11. 1-Click High-Res Poster Export| UI
-    Cinema -->|12. Fullscreen Cinematic Slideshow| UI
+    UI -->|9. Reroll Single Panel| Reroll
+    Reroll -->|10. Converse API Target Panel| Bedrock
+    Bedrock -->|11. Fresh Panel Twist| UI
+
+    Audio -->|12. Sequenced Duet & Panel Glow| UI
+    Canvas -->|13. 1-Click High-Res Poster Export| UI
+    Cinema -->|14. Fullscreen Cinematic Slideshow| UI
     Router -.->|Optional Backup| S3
 ```
 
 ### AWS Services Breakdown:
-- **Amazon Bedrock (Amazon Nova Lite & Pro):** Crafts witty comic narratives, character dialogues, and standup comedy roasts via the unified `Converse API`.
-- **Amazon Polly (Multi-Voice Neural TTS):** Powers voice acting across multiple personas (*Ruth, Matthew, Stephen, Arthur*) for comic banter and spoken roasts.
-- **Amazon Simple Storage Service (Amazon S3):** Provides scalable cloud storage for backing up generated comics and visual assets.
+- **Amazon Bedrock (Amazon Nova Lite & Pro):** Serves as the creative core via Bedrock’s unified `Converse API`. Using structured system prompting, it enforces strict JSON schemas containing narrative captions, emotional states, scene descriptions, and dialogue pairs. Also powers single-panel rerolling on demand.
+- **Amazon Polly (Multi-Voice Neural Engine):** Delivers natural, expressive voice synthesis across multiple voice personas (e.g., *Ruth, Matthew, Joanna, Arthur, Stephen*). Enables multi-voice duets where distinct characters speak in alternating neural voices.
+- **Amazon Simple Storage Service (Amazon S3):** Provides scalable cloud storage for backing up generated comic structures and exported graphic assets.
 
 ---
 
 ## 🛠️ How We Built It
 
-### 1. Dual Creative Prompt Engineering with Amazon Nova
-We constructed two specialized system prompts for Bedrock:
-- **ComicCraft Story Prompt:** Enforces strict 4-panel narrative progression, character dialogue pairs, and visual color scheme tokens.
-- **Roast Master Prompt:** Generates comedic timing, burn level ratings, tweetable one-liners, and an accompanying 4-panel cartoon storyboard depicting the user's disaster.
+### 1. The Multi-Modal Pipeline
+The primary technical goal was ensuring that comic generation felt instantaneous and fluid. We built an Express.js backend utilizing the `@aws-sdk/client-bedrock-runtime` and `@aws-sdk/client-polly` SDKs.
 
-### 2. Multi-Character Duet & Roast Voice Delivery
-Amazon Bedrock tags speakers and emotions, which the backend routes to Amazon Polly:
+For the narrative generation, we leveraged the **Converse API** on Amazon Nova:
 ```javascript
-const command = new SynthesizeSpeechCommand({
-  OutputFormat: "mp3",
-  Text: roastText,
-  VoiceId: voiceId || "Matthew",
-  Engine: "neural"
+const command = new ConverseCommand({
+  modelId: "us.amazon.nova-lite-v1:0",
+  messages: [{ role: "user", content: [{ text: userPrompt }] }],
+  system: [{ text: COMIC_SYSTEM_PROMPT }],
+  inferenceConfig: {
+    maxTokens: 2500,
+    temperature: 0.85,
+    topP: 0.9
+  }
 });
-const pollyRes = await pollyClient.send(command);
+const response = await bedrockClient.send(command);
 ```
-On the client, audio streams are chained sequentially while illuminating the active speech bubbles and triggering Web Audio comedy stingers (*Sad Trombone, Vine Boom*).
 
-### 3. Interactive Play & Comedy Soundboard
-- Users can switch between **Comic Studio** and **Live AI Roaster** with one click.
-- Real-time Web Audio synthesizer generates instant comedy soundboard effects.
-- Single-panel **"🔄 Reroll"** allows regenerating punchlines without losing the comic.
-- 1-click **"Export PNG"** captures high-resolution, printable comic strips and roast cards.
+### 2. Multi-Character Neural Voice Duets
+Rather than generating a flat, single-voice audio file, we engineered a multi-character voice duet pipeline. Amazon Bedrock tags character gender and suggested voices, allowing Amazon Polly to synthesize distinct neural audio clips for the narrator and individual cartoon characters. When playing the story, the client seamlessly orchestrates the conversation banter while lighting up active speech bubbles.
+
+### 3. Interactive Play & Direct Editing
+To fulfill the "Play" dimension of the challenge:
+- Speech bubbles use `contenteditable="true"`, allowing users to tweak punchlines or rewrite character lines.
+- Single-panel **"🔄 Reroll"** buttons allow creators to ask Amazon Nova for alternative twists and punchlines without rebuilding the entire comic.
+- An interactive **Action Sticker Tray** with built-in Web Audio SFX allows users to stamp retro comic sound stickers (*POW!*, *BAM!*, *AWS!*, *KABOOM!*) anywhere on the canvas.
+- A **Fullscreen Comic Cinema Mode** enables an animated slideshow presentation with keyboard arrow navigation and automated voice narration.
+- An integrated `html2canvas` renderer captures the entire rendered comic grid at `scale: 2` for crisp, printable PNG exports.
+
+### 4. Key Challenges Overcome
+- **Multi-Voice Pacing:** Combining distinct Polly audio clips required precise promise queuing in the browser to avoid overlapping dialogue. We resolved this by chaining `HTML5 Audio` events (`onended`) across dynamic character dialogue arrays.
+- **Low-Latency Audio Delivery:** Writing MP3 files to local disk before serving added unnecessary I/O overhead. We optimized this by accumulating Polly’s `AudioStream` chunks in memory as a binary `Buffer` and returning a Base64 data URI directly to the browser.
 
 ---
 
 ## 💡 What We Learned
 
-1. **Amazon Nova’s Comedic Range:** Nova models excel at understanding developer humor, contextual irony, and sharp punchline structure while strictly respecting complex JSON output schemas.
-2. **The Power of Multi-Modal Audio & Visual Synthesis:** Blending AI text with real-time neural voices, sound synthesis, and comic art creates a deeply entertaining, shareable experience that captivates audiences.
+1. **Amazon Nova’s Speed and Creative Precision:** Testing across `nova-micro`, `nova-lite`, and `nova-pro` demonstrated how effectively Nova models balance comedic timing, structured JSON adherence, and lightning-fast inference times.
+2. **Bedrock Converse API Streamlining:** The unified `Converse API` simplifies multi-turn conversations and system prompt injection across diverse model providers, eliminating model-specific payload boilerplate.
+3. **Multi-Sensory Immersion:** Combining AI text generation with multi-voice neural acting and interactive visual manipulation elevates an app from a simple text generator into a memorable, joyful multimedia studio.
 
 ---
 
 ## 🔗 Project Links & Source Code
 
 - **GitHub Repository:** [https://github.com/ianasriaz/AWS-Weekend-Challenge-Build-a-Creative-App](https://github.com/ianasriaz/AWS-Weekend-Challenge-Build-a-Creative-App)
-- **Live Demo:** Running locally with AWS Bedrock & Polly in `us-east-1`.
+- **Live Demo:** Deployed with AWS Bedrock & Polly in `us-east-1`.
 
 ---
 

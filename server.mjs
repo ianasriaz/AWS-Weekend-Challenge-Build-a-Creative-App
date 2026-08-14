@@ -69,31 +69,14 @@ Structure:
       "panelNumber": 1,
       "caption": "Narrative caption",
       "sceneDescription": "Scene description",
-      "character1": { "name": "Name", "dialogue": "Dialogue", "emotion": "happy", "avatar": "🐱", "voiceGender": "female" },
-      "character2": { "name": "Name", "dialogue": "Reply", "emotion": "surprised", "avatar": "🤖", "voiceGender": "male" },
+      "character1": { "name": "Name", "dialogue": "Dialogue text", "emotion": "happy", "avatar": "🐱", "voiceGender": "female" },
+      "character2": { "name": "Name", "dialogue": "Reply text", "emotion": "surprised", "avatar": "🤖", "voiceGender": "male" },
       "soundEffect": "BZZT!",
-      "visualPrompt": "Prompt",
+      "visualPrompt": "Prompt description",
       "colorScheme": { "bgGradient": "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", "accent": "#fbbf24" }
     }
   ]
 }
-`;
-
-// System Prompt for Live Savage Roaster Arena
-const ROASTER_SYSTEM_PROMPT = `
-You are the "AWS Roast Master AI", a legendary standup comedian and brutally witty tech critic.
-Your job is to take user descriptions of themselves, their friends, habits, bugs, or embarrassing situations and deliver an unforgettable, hilarious, savage-yet-playful roast.
-
-You must output a raw JSON object with:
-1. "roastTitle": Catchy roast headline (e.g., "The Kubernetes Over-Engineer Syndrome")
-2. "burnLevel": "EMOTIONAL DAMAGE 💀 (10/10)" / "THIRD DEGREE BURN 🔥 (9/10)" / "FATAL LOGIC ERROR ⚠️ (8.5/10)"
-3. "savageRoast": A 2-3 paragraph spoken roast monologue full of punchlines, tech metaphors, and comedy roasts.
-4. "punchlineOneLiner": A 1-sentence killer one-liner ready for Twitter/social sharing.
-5. "recommendedSfx": "sad-trombone" / "vine-boom" / "airhorn" / "laugh-track"
-6. "comic": A complete 4-panel comic strip depicting this exact roast scenario (following the 4-panel comic structure with captions, character dialogues, sound effects, and color schemes).
-
-OUTPUT FORMAT:
-Return ONLY the raw valid JSON object.
 `;
 
 // Helper: Extract JSON safely
@@ -141,10 +124,9 @@ async function callBedrock(promptText, systemPrompt) {
   throw new Error(`Bedrock failed: ${lastError?.message || "Unknown error"}`);
 }
 
-
 // Routes
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", service: "ComicCraft & Live Roaster Studio", region: REGION, models: BEDROCK_MODELS });
+  res.json({ status: "ok", service: "ComicCraft AI Studio", region: REGION, models: BEDROCK_MODELS });
 });
 
 // Route: Generate Comic
@@ -167,28 +149,6 @@ Make it hilarious, witty, with sharp punchlines! Return ONLY raw JSON.`;
   }
 });
 
-// Route: Live Savage Roaster
-app.post("/api/roast-me", async (req, res) => {
-  try {
-    const { description, targetType = "self" } = req.body;
-    if (!description || !description.trim()) {
-      return res.status(400).json({ error: "Please provide a situation or person to roast!" });
-    }
-
-    console.log(`[Roaster] Roasting situation (${targetType}): "${description.substring(0, 50)}..."`);
-    const promptText = `Deliver an outrageously funny, savage roast of this situation/person:
-Target / Scenario: "${description}"
-Target Type: ${targetType}
-Make the roast hilarious, witty, and create an accompanying 4-panel comic strip showing the catastrophe! Return ONLY raw JSON.`;
-
-    const roastData = await callBedrock(promptText, ROASTER_SYSTEM_PROMPT);
-    res.json({ success: true, roast: roastData });
-  } catch (error) {
-    console.error("[Roaster Error]:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
 // Route: Reroll Single Panel
 app.post("/api/reroll-panel", async (req, res) => {
   try {
@@ -196,7 +156,7 @@ app.post("/api/reroll-panel", async (req, res) => {
     const promptText = `Given this comic story:
 Title: "${comic.title}"
 Existing Panels: ${JSON.stringify(comic.panels)}
-Generate an alternative version for PANEL ${panelNumber}. Return ONLY raw JSON for this panel.`;
+Generate an alternative version for PANEL ${panelNumber}. Return ONLY raw JSON for this single panel.`;
 
     const newPanel = await callBedrock(promptText, COMIC_SYSTEM_PROMPT);
     res.json({ success: true, panel: newPanel.panels ? newPanel.panels[0] : newPanel });
@@ -268,7 +228,7 @@ app.use((req, res) => {
 if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`\n======================================================`);
-    console.log(`🔥 ComicCraft & Live Roaster Studio is running on http://localhost:${PORT}`);
+    console.log(`🎨 ComicCraft AI Studio is running on http://localhost:${PORT}`);
     console.log(`📍 AWS Region: ${REGION}`);
     console.log(`⚡ Bedrock Models: ${BEDROCK_MODELS.join(", ")}`);
     console.log(`======================================================\n`);
