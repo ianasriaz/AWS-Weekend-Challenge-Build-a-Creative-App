@@ -107,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initAudioControls();
   initCinemaMode();
   initExport();
-  initModal();
 });
 
 // 1. Sparks
@@ -529,20 +528,4 @@ function initExport() {
       link.click();
     }).catch(err => console.error(err));
   });
-}
-
-// 10. Modal
-function initModal() {
-  const modal = document.getElementById("aboutModal");
-  const openBtn = document.getElementById("openAboutBtn");
-  const closeBtn = document.getElementById("closeAboutBtn");
-
-  if (openBtn) openBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    playSfx("woosh");
-    modal.classList.remove("hidden");
-  });
-
-  if (closeBtn) closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
-  modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.add("hidden"); });
 }

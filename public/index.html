@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ComicCraft AI Studio – Powered by Amazon Bedrock & Polly</title>
-  <meta name="description" content="Generate 4-panel voiced, interactive comic strips powered by Amazon Bedrock Nova models and Amazon Polly Neural voice synthesis." />
+  <title>ComicCraft AI Studio – Generative Comic Strip & Voice Creator</title>
+  <meta name="description" content="Generate 4-panel voiced, interactive comic strips with character duets, dynamic sound effects, and cinema mode." />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -29,7 +29,7 @@
           <span class="logo-icon">💥</span>
           <div class="logo-text">
             <h1 class="logo-title">ComicCraft <span class="badge-ai">AI STUDIO</span></h1>
-            <p class="logo-sub">AWS Bedrock Nova Lite/Pro + Amazon Polly Multi-Voice Studio</p>
+            <p class="logo-sub">Generative 4-Panel Comic Strip & Multi-Voice Studio</p>
           </div>
         </div>
       </div>
@@ -41,15 +41,8 @@
           <span class="eq-bar"></span>
           <span class="eq-bar"></span>
           <span class="eq-bar"></span>
-          <span class="eq-label">Polly Speaking</span>
+          <span class="eq-label">Voice Playing</span>
         </div>
-        <div class="aws-status-pill">
-          <span class="pulse-dot"></span>
-          <span class="aws-badge-text">AWS Live • us-east-1</span>
-        </div>
-        <a href="#about" class="btn-ghost" id="openAboutBtn">
-          <i data-lucide="info"></i> Architecture
-        </a>
       </div>
     </header>
 
@@ -67,8 +60,8 @@
         <div class="sparks-section">
           <label class="section-label"><i data-lucide="sparkles"></i> Inspiration Sparks</label>
           <div class="sparks-scroll" id="sparksContainer">
-            <button class="spark-btn" data-prompt="An AWS Lambda function gains consciousness and desperately tries to avoid a cold start timeout.">
-              🚀 Lambda Cold Start
+            <button class="spark-btn" data-prompt="A smart robot gains consciousness and desperately tries to avoid an accidental system reset.">
+              🤖 Robot Rebellion
             </button>
             <button class="spark-btn" data-prompt="A lazy cat accidentally invents a time machine to steal tomorrow's treats today.">
               🐱 Time Traveling Cat
@@ -105,13 +98,13 @@
             </div>
 
             <div class="form-group">
-              <label for="voiceSelect" class="section-label">Narrator Voice (Polly)</label>
+              <label for="voiceSelect" class="section-label">Narrator Voice</label>
               <select id="voiceSelect" class="custom-select">
-                <option value="Ruth">🎙️ Ruth (Expressive Neural)</option>
-                <option value="Matthew">🎙️ Matthew (Heroic Male Neural)</option>
+                <option value="Ruth">🎙️ Ruth (Expressive)</option>
+                <option value="Matthew">🎙️ Matthew (Heroic)</option>
                 <option value="Joanna">🎙️ Joanna (Classic Narrator)</option>
-                <option value="Arthur">🎙️ Arthur (British Dramatic)</option>
-                <option value="Stephen">🎙️ Stephen (Deep Neural)</option>
+                <option value="Arthur">🎙️ Arthur (Dramatic)</option>
+                <option value="Stephen">🎙️ Stephen (Deep Tone)</option>
               </select>
             </div>
           </div>
@@ -124,13 +117,13 @@
             </label>
             <div class="duet-label-box">
               <span class="duet-title">🎭 Multi-Character Voice Duet</span>
-              <span class="duet-sub">Alternating Polly neural voices for dialogue banter</span>
+              <span class="duet-sub">Alternating character voices for dialogue banter</span>
             </div>
           </div>
 
           <button type="submit" id="generateBtn" class="btn-action-primary">
             <span class="btn-text"><i data-lucide="wand-2"></i> Generate 4-Panel Comic</span>
-            <span class="btn-loader hidden"><div class="spinner"></div> Creating with Bedrock Nova...</span>
+            <span class="btn-loader hidden"><div class="spinner"></div> Creating Comic Strip...</span>
           </button>
         </form>
 
@@ -141,7 +134,7 @@
             <span class="sticker-item" data-text="POW!" data-sfx="pow">💥 POW!</span>
             <span class="sticker-item" data-text="BAM!" data-sfx="pow">⚡ BAM!</span>
             <span class="sticker-item" data-text="KABOOM!" data-sfx="kaboom">💣 KABOOM!</span>
-            <span class="sticker-item" data-text="AWS!" data-sfx="sparkle">☁️ AWS!</span>
+            <span class="sticker-item" data-text="BANG!" data-sfx="pow">💥 BANG!</span>
             <span class="sticker-item" data-text="404!" data-sfx="glitch">⚠️ 404!</span>
             <span class="sticker-item" data-text="LOL!" data-sfx="boing">😂 LOL!</span>
             <span class="sticker-item" data-text="ZOOM!" data-sfx="woosh">💨 ZOOM!</span>
@@ -182,7 +175,7 @@
             <div class="empty-state">
               <div class="empty-icon">🎨</div>
               <h3>Your 4-Panel Comic Will Appear Here</h3>
-              <p>Powered by Amazon Bedrock Nova models for witty dialogues & Amazon Polly for neural character voices.</p>
+              <p>Enter any story idea or pick an inspiration spark on the left to generate your voiced 4-panel comic strip.</p>
             </div>
           </div>
         </div>
@@ -207,43 +200,6 @@
             <span class="dot"></span>
           </div>
           <button id="cinemaNextBtn" class="cinema-nav-btn">Next <i data-lucide="chevron-right"></i></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Architecture & Challenge Info Modal -->
-    <div id="aboutModal" class="modal-backdrop hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2><i data-lucide="cloud"></i> ComicCraft AI: AWS Architecture Overview</h2>
-          <button id="closeAboutBtn" class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="architecture-grid">
-            <div class="arch-card">
-              <div class="arch-icon">🤖</div>
-              <h4>Amazon Bedrock (Nova Lite/Pro)</h4>
-              <p>Generates structured 4-panel narrative arcs, character dynamics, punchlines, and scene prompts with the Converse API.</p>
-            </div>
-            <div class="arch-card">
-              <div class="arch-icon">🔊</div>
-              <h4>Amazon Polly Multi-Voice TTS</h4>
-              <p>Synthesizes character-acted dialogues and narrator pacing with neural voice duets across personas.</p>
-            </div>
-            <div class="arch-card">
-              <div class="arch-icon">☁️</div>
-              <h4>Amazon S3 & Cloud Architecture</h4>
-              <p>Scalable storage for comic exports, stories, and cloud assets with AWS serverless backend.</p>
-            </div>
-            <div class="arch-card">
-              <div class="arch-icon">🎮</div>
-              <h4>Interactive Studio UI</h4>
-              <p>Direct dialogue editing, sticker placement, Web Audio sound effects, Cinema Mode, and 1-click high-res PNG export.</p>
-            </div>
-          </div>
-          <div class="challenge-footer">
-            <p><strong>AWS Weekend Challenge:</strong> Build a Creative App (#creative-expression)</p>
-          </div>
         </div>
       </div>
     </div>
