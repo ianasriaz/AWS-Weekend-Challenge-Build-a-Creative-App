@@ -216,9 +216,11 @@ body {
 }
 
 .card-tag {
-  font-family: var(--font-comic);
-  font-size: 1rem;
-  letter-spacing: 1px;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
   color: var(--accent-cyan);
 }
 
@@ -372,49 +374,50 @@ textarea#promptInput:focus {
   background-color: #334155;
   transition: 0.3s;
   border-radius: 24px;
-.duet-toggle-slider::after {
-  content: '';
+}
+
+.toggle-slider:before {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
+  content: "";
   height: 18px;
-  background: #fff;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
   border-radius: 50%;
-  transition: transform 0.3s;
 }
 
-.duet-toggle-input:checked + .duet-toggle-slider {
-  background: var(--accent-purple);
+input:checked + .toggle-slider {
+  background-color: var(--accent-purple);
 }
 
-.duet-toggle-input:checked + .duet-toggle-slider::after {
+input:checked + .toggle-slider:before {
   transform: translateX(20px);
 }
 
-.duet-info {
+.duet-label-box {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
 }
 
 .duet-title {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: #fff;
+  color: #c4b5fd;
 }
 
 .duet-sub {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
 }
 
-/* Action Primary Button */
+/* Action Button */
 .btn-action-primary {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #000;
@@ -466,7 +469,7 @@ textarea#promptInput:focus {
 }
 
 .sticker-item:hover {
-  transform: rotate(-5deg) scale(1.08);
+  transform: rotate(-5deg) scale(1.1);
   background: #fde047;
 }
 
@@ -487,7 +490,7 @@ textarea#promptInput:focus {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border-color);
 }
