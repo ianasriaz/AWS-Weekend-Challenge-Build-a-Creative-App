@@ -117,6 +117,7 @@ function initSparks() {
     btn.addEventListener("click", () => {
       playSfx("woosh");
       promptInput.value = btn.dataset.prompt;
+      window.selectedSparkMeme = btn.dataset.meme;
       promptInput.focus();
     });
   });
@@ -144,7 +145,7 @@ function initForm() {
       const response = await fetch("/api/generate-comic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, style })
+        body: JSON.stringify({ prompt, style, targetMeme: window.selectedSparkMeme })
       });
 
       const data = await response.json();
@@ -189,8 +190,8 @@ function renderComic(comic) {
 
 // Helper: Resolve Real Meme Character Photo
 function resolveMemeImage(panel, index) {
-  // 1. Direct explicit key from Bedrock
-  const explicitKey = panel?.memeReaction || currentComic?.memeReaction;
+  // 1. Direct explicit key from spark selection or Bedrock
+  const explicitKey = panel?.memeReaction || currentComic?.memeReaction || window.selectedSparkMeme;
   const MEME_MAP = {
     "disaster_girl": "/memes/disaster_girl.png",
     "waiting_pablo": "/memes/waiting_pablo.png",
@@ -205,39 +206,52 @@ function resolveMemeImage(panel, index) {
     return MEME_MAP[explicitKey];
   }
 
-  // 2. Comprehensive contextual search across entire story
+  // 2. Exact keyword matching with specific priority
   const fullStoryText = `${currentComic?.title || ''} ${currentComic?.logline || ''} ${panel?.caption || ''} ${panel?.sceneDescription || ''} ${panel?.character1?.dialogue || ''} ${panel?.character2?.dialogue || ''}`.toLowerCase();
 
-  if (fullStoryText.includes("plumb") || fullStoryText.includes("flood") || fullStoryText.includes("burn") || fullStoryText.includes("fire") || fullStoryText.includes("disaster") || fullStoryText.includes("volcano") || fullStoryText.includes("chaos") || fullStoryText.includes("pool") || fullStoryText.includes("water leak")) {
-    return "/memes/disaster_girl.png";
+  // Cricket / Blunder / Disappointed Fan FIRST
+  if (fullStoryText.includes("cricket") || fullStoryText.includes("catch") || fullStoryText.includes("fielder") || fullStoryText.includes("world cup") || fullStoryText.includes("stadium") || fullStoryText.includes("grocer") || fullStoryText.includes("milk") || fullStoryText.includes("egg") || fullStoryText.includes("forgot") || fullStoryText.includes("door") || fullStoryText.includes("push") || fullStoryText.includes("pull") || fullStoryText.includes("disappoint") || fullStoryText.includes("sarim")) {
+    return "/memes/disappointed_fan.png";
   }
-  if (fullStoryText.includes("delay") || fullStoryText.includes("airport") || fullStoryText.includes("flight") || fullStoryText.includes("wait") || fullStoryText.includes("queue") || fullStoryText.includes("hours") || fullStoryText.includes("lonely") || fullStoryText.includes("bench")) {
+
+  // Airport / Delay / Lonely Waiting
+  if (fullStoryText.includes("delay") || fullStoryText.includes("airport") || fullStoryText.includes("flight") || fullStoryText.includes("wait") || fullStoryText.includes("queue") || fullStoryText.includes("pablo") || fullStoryText.includes("bench")) {
     return "/memes/waiting_pablo.png";
   }
+
+  // Diet / Donut / Temptation
   if (fullStoryText.includes("diet") || fullStoryText.includes("donut") || fullStoryText.includes("pizza") || fullStoryText.includes("tempt") || fullStoryText.includes("cheat") || fullStoryText.includes("bakery") || fullStoryText.includes("distract") || fullStoryText.includes("boyfriend")) {
     return "/memes/distracted_boyfriend.png";
   }
+
+  // Restaurant / Yelling at Cat
   if (fullStoryText.includes("restaurant") || fullStoryText.includes("soup") || fullStoryText.includes("waiter") || fullStoryText.includes("cat") || fullStoryText.includes("salad") || fullStoryText.includes("yell") || fullStoryText.includes("scream") || fullStoryText.includes("customer")) {
     return "/memes/woman_yelling_cat.png";
   }
-  if (fullStoryText.includes("fridge") || fullStoryText.includes("excuse") || fullStoryText.includes("homework") || fullStoryText.includes("chloe") || fullStoryText.includes("side-eye") || fullStoryText.includes("dentist") || fullStoryText.includes("wut") || fullStoryText.includes("skeptic")) {
-    return "/memes/side_eye_chloe.png";
-  }
+
+  // Unmuted Mic / Awkward Gavin
   if (fullStoryText.includes("unmute") || fullStoryText.includes("mic") || fullStoryText.includes("meeting") || fullStoryText.includes("gossip") || fullStoryText.includes("gavin") || fullStoryText.includes("awkward") || fullStoryText.includes("cringe") || fullStoryText.includes("boss") || fullStoryText.includes("zoom")) {
     return "/memes/awkward_gavin.png";
   }
-  if (fullStoryText.includes("cricket") || fullStoryText.includes("catch") || fullStoryText.includes("fielder") || fullStoryText.includes("match") || fullStoryText.includes("stadium") || fullStoryText.includes("grocer") || fullStoryText.includes("milk") || fullStoryText.includes("egg") || fullStoryText.includes("forgot") || fullStoryText.includes("door") || fullStoryText.includes("push") || fullStoryText.includes("pull") || fullStoryText.includes("semicolon") || fullStoryText.includes("disappoint") || fullStoryText.includes("sarim")) {
-    return "/memes/disappointed_fan.png";
+
+  // Smart Fridge / Side-Eye Chloe
+  if (fullStoryText.includes("fridge") || fullStoryText.includes("excuse") || fullStoryText.includes("homework") || fullStoryText.includes("chloe") || fullStoryText.includes("side-eye") || fullStoryText.includes("dentist") || fullStoryText.includes("wut") || fullStoryText.includes("skeptic")) {
+    return "/memes/side_eye_chloe.png";
+  }
+
+  // Plumbing / Fire / Disaster Girl
+  if (fullStoryText.includes("plumb") || fullStoryText.includes("flood") || fullStoryText.includes("pipe") || fullStoryText.includes("volcano") || fullStoryText.includes("burn") || fullStoryText.includes("fire") || fullStoryText.includes("disaster")) {
+    return "/memes/disaster_girl.png";
   }
 
   const defaultPool = [
     "/memes/disappointed_fan.png",
-    "/memes/disaster_girl.png",
+    "/memes/waiting_pablo.png",
     "/memes/woman_yelling_cat.png",
     "/memes/distracted_boyfriend.png",
-    "/memes/waiting_pablo.png",
     "/memes/awkward_gavin.png",
-    "/memes/side_eye_chloe.png"
+    "/memes/side_eye_chloe.png",
+    "/memes/disaster_girl.png"
   ];
   return defaultPool[index % defaultPool.length];
 }

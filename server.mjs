@@ -91,7 +91,7 @@ Structure:
       "character1": { "name": "Name", "dialogue": "Punchline line 1", "emotion": "shocked", "avatar": "🧑", "voiceGender": "female" },
       "character2": { "name": "Name", "dialogue": "Punchline line 2", "emotion": "speechless", "avatar": "👩", "voiceGender": "male" },
       "soundEffect": "KABOOM!",
-      "memeReaction": "disaster_girl",
+      "memeReaction": "disappointed_fan / disaster_girl / woman_yelling_cat / distracted_boyfriend / waiting_pablo / awkward_gavin / side_eye_chloe",
       "colorScheme": { "bgGradient": "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", "accent": "#ef4444" }
     }
   ]
@@ -151,16 +151,21 @@ app.get("/api/health", (req, res) => {
 // Route: Generate Comic
 app.post("/api/generate-comic", async (req, res) => {
   try {
-    const { prompt, style, genre } = req.body;
+    const { prompt, style, genre, targetMeme } = req.body;
     if (!prompt) return res.status(400).json({ error: "Prompt is required" });
 
     const promptText = `Create a 4-panel comic strip based on:
 Prompt: "${prompt}"
 Style: ${style || "Retro Comic Book"}
 Genre: ${genre || "Comedy"}
+${targetMeme ? `For Panel 4 (The Grand Punchline), set "memeReaction": "${targetMeme}".` : ''}
 Make it hilarious, witty, with sharp punchlines! Return ONLY raw JSON.`;
 
     const comicData = await callBedrock(promptText, COMIC_SYSTEM_PROMPT);
+    if (targetMeme && comicData?.panels?.[3]) {
+      comicData.panels[3].memeReaction = targetMeme;
+      comicData.memeReaction = targetMeme;
+    }
     res.json({ success: true, comic: comicData });
   } catch (error) {
     console.error("[Generate Error]:", error);
