@@ -228,18 +228,19 @@ function resolveMemeImage(char, index, roleOffset = 0) {
 
 // Helper: Create Panel Element
 function createPanelElement(panel, index) {
+  const isFinalPunchline = index === 3;
   const panelDiv = document.createElement("div");
-  panelDiv.className = "comic-panel";
+  panelDiv.className = `comic-panel ${isFinalPunchline ? 'panel-punchline-hero' : ''}`;
   panelDiv.id = `comic-panel-${panel.panelNumber || index + 1}`;
 
   const bgStyle = panel.colorScheme?.bgGradient || "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)";
   const accentColor = panel.colorScheme?.accent || "#fbbf24";
 
   const header = document.createElement("div");
-  header.className = "panel-caption-badge";
+  header.className = `panel-caption-badge ${isFinalPunchline ? 'caption-punchline' : ''}`;
   header.innerHTML = `
-    <span>${panel.caption || `PANEL ${index + 1}`}</span>
-    <span class="panel-num-tag">#${index + 1}</span>
+    <span>${panel.caption || (isFinalPunchline ? '🔥 THE GRAND PUNCHLINE' : `PANEL ${index + 1}`)}</span>
+    <span class="panel-num-tag">${isFinalPunchline ? '🏆 #4' : `#${index + 1}`}</span>
   `;
   panelDiv.appendChild(header);
 
@@ -255,47 +256,35 @@ function createPanelElement(panel, index) {
     visualArea.appendChild(soundBadge);
   }
 
-  // Character Center Stage with REAL MEME PHOTOS
-  const stageContainer = document.createElement("div");
-  stageContainer.className = "character-stage-container";
-
-  let stageHtml = `<div class="stage-actors-wrapper">`;
-  if (panel.character1 && panel.character1.name) {
-    const memeImg1 = resolveMemeImage(panel.character1, index, 0);
-    stageHtml += `
-      <div class="stage-actor actor-left">
-        <div class="actor-photo-frame">
-          <img src="${memeImg1}" class="actor-real-img" alt="${panel.character1.name}" />
-        </div>
-        <span class="actor-name">${panel.character1.name}</span>
-        <span class="actor-mood">${panel.character1.emotion || 'acting'}</span>
+  // Panel 4: Grand Finale Large Meme Showcase
+  if (isFinalPunchline) {
+    const primaryChar = panel.character2 || panel.character1;
+    const memeImg = resolveMemeImage(primaryChar, index);
+    
+    const memeShowcase = document.createElement("div");
+    memeShowcase.className = "meme-punchline-showcase";
+    memeShowcase.innerHTML = `
+      <div class="meme-reaction-tag">⚡ FINAL REACTION</div>
+      <div class="meme-photo-wrapper">
+        <img src="${memeImg}" class="meme-hero-img" alt="Meme Reaction" />
       </div>
     `;
+    visualArea.appendChild(memeShowcase);
+  } else {
+    // Panels 1-3: Clean Subtle Scene Atmosphere
+    const sceneAtmosphere = document.createElement("div");
+    sceneAtmosphere.className = "scene-atmosphere-graphic";
+    sceneAtmosphere.innerHTML = generatePanelSvgGraphic(panel, index, accentColor);
+    visualArea.appendChild(sceneAtmosphere);
   }
 
-  if (panel.character2 && panel.character2.name && panel.character2.dialogue) {
-    const memeImg2 = resolveMemeImage(panel.character2, index, 1);
-    stageHtml += `
-      <div class="stage-vs-badge">VS</div>
-      <div class="stage-actor actor-right">
-        <div class="actor-photo-frame">
-          <img src="${memeImg2}" class="actor-real-img" alt="${panel.character2.name}" />
-        </div>
-        <span class="actor-name">${panel.character2.name}</span>
-        <span class="actor-mood">${panel.character2.emotion || 'reacting'}</span>
-      </div>
-    `;
-  }
-  stageHtml += `</div>`;
-  stageContainer.innerHTML = stageHtml;
-  visualArea.appendChild(stageContainer);
-
+  // Speech Bubbles & Dialogues
   const dialoguesDiv = document.createElement("div");
-  dialoguesDiv.className = "panel-dialogues";
+  dialoguesDiv.className = `panel-dialogues ${isFinalPunchline ? 'punchline-dialogues' : ''}`;
 
   if (panel.character1 && panel.character1.dialogue) {
     const bubble1 = document.createElement("div");
-    bubble1.className = "speech-bubble char-left";
+    bubble1.className = `speech-bubble char-left ${isFinalPunchline ? 'punchline-bubble' : ''}`;
     bubble1.innerHTML = `
       <span class="bubble-speaker">${panel.character1.avatar || '👤'} ${panel.character1.name}</span>
       <div class="bubble-text-editable" contenteditable="true">${panel.character1.dialogue}</div>
@@ -305,7 +294,7 @@ function createPanelElement(panel, index) {
 
   if (panel.character2 && panel.character2.dialogue) {
     const bubble2 = document.createElement("div");
-    bubble2.className = "speech-bubble char-right";
+    bubble2.className = `speech-bubble char-right ${isFinalPunchline ? 'punchline-bubble' : ''}`;
     bubble2.innerHTML = `
       <span class="bubble-speaker">${panel.character2.avatar || '👤'} ${panel.character2.name}</span>
       <div class="bubble-text-editable" contenteditable="true">${panel.character2.dialogue}</div>

@@ -677,109 +677,80 @@ input:checked + .toggle-slider:before {
   object-fit: cover;
 }
 
-/* Character Center Stage */
-.character-stage-container {
-  position: relative;
-  z-index: 4;
-  margin: 0.5rem 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: none;
+/* Grand Finale Panel 4 Meme Showcase */
+.panel-punchline-hero {
+  border: 3.5px solid var(--accent-yellow) !important;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), 6px 6px 0px #000 !important;
 }
 
-.stage-actors-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  background: rgba(0, 0, 0, 0.45);
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  padding: 0.75rem 1.25rem;
-  border-radius: 1.25rem;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+.caption-punchline {
+  background: linear-gradient(135deg, #f59e0b, #ef4444) !important;
+  color: #fff !important;
+  text-shadow: 1px 1px 0px #000;
+  letter-spacing: 1px;
 }
 
-.stage-actor {
+.meme-punchline-showcase {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: 0.2rem;
-  transition: transform 0.3s ease;
+  margin: 0.25rem 0 0.75rem 0;
+  gap: 0.35rem;
+  z-index: 5;
 }
 
-.actor-left {
-  animation: floatActorLeft 4s infinite ease-in-out;
+.meme-reaction-tag {
+  font-family: var(--font-comic);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  background: #ec4899;
+  color: #fff;
+  padding: 0.15rem 0.6rem;
+  border-radius: 0.4rem;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0px #000;
+  text-shadow: 1px 1px 0px #000;
 }
 
-.actor-right {
-  animation: floatActorRight 4s infinite ease-in-out;
-}
-
-.actor-photo-frame {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
+.meme-photo-wrapper {
+  width: 100%;
+  max-width: 380px;
+  height: 170px;
   border: 3px solid #000;
-  box-shadow: 0 0 16px rgba(245, 158, 11, 0.7), 3px 3px 0px #000;
+  box-shadow: 5px 5px 0px #000;
+  border-radius: 0.85rem;
   overflow: hidden;
-  background: #1e1b4b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: transform 0.2s ease;
+  background: #000;
+  animation: punchlinePop 0.4s ease-out;
 }
 
-.actor-real-img {
+.meme-hero-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 20%;
+  object-position: center top;
   display: block;
 }
 
-.actor-name {
-  font-family: var(--font-comic);
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
-  color: var(--accent-yellow);
-  text-shadow: 1px 1px 0px #000;
-  white-space: nowrap;
+.punchline-bubble {
+  background: #fef08a !important;
+  border: 2.5px solid #000 !important;
+  box-shadow: 4px 4px 0px #000 !important;
+  font-size: 1.05rem !important;
 }
 
-.actor-mood {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #cbd5e1;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 0.1rem 0.4rem;
-  border-radius: 0.3rem;
-  text-transform: capitalize;
+.scene-atmosphere-graphic {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
-.stage-vs-badge {
-  font-family: var(--font-comic);
-  font-size: 1.1rem;
-  color: #ec4899;
-  background: #000;
-  border: 2px solid #ec4899;
-  padding: 0.15rem 0.45rem;
-  border-radius: 0.4rem;
-  transform: rotate(-10deg);
-  box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
-}
-
-@keyframes floatActorLeft {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-4px) rotate(2deg); }
-}
-
-@keyframes floatActorRight {
-  0%, 100% { transform: translateY(0) rotate(2deg); }
-  50% { transform: translateY(-4px) rotate(-2deg); }
+@keyframes punchlinePop {
+  0% { transform: scale(0.92); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .sound-badge {
