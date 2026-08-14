@@ -46,7 +46,10 @@ RULES:
 2. Characters should have distinct personalities, sharp snappy dialogue, gender assignment, and comic timing.
 3. INTELLIGENT MEME AUTO-CASTING:
    - Analyze the situation context and automatically weave in or cast iconic meme archetypes and reactions whenever it amplifies the humor:
-     - 🤦‍♂️ "Disappointed Fan" (Muhammad Sarim Akhtar stance: hands on hips, silent judgment, cold glare when someone makes an absurd blunder)
+     - 🥸 "Mr. Bean" (mischievous sneaky schemes, bizarre physical comedy solutions, or impatiently waiting by the roadside tapping fingers)
+     - 👀 "Side-Eye Chloe / WUT" (skeptical buck-toothed side-eye glare when someone says something totally baffling)
+     - 😬 "Awkward Gavin / Concerned Face" (strained grimace-smile when caught in a painfully uncomfortable situation)
+     - 🤦‍♂️ "Disappointed Fan" (Muhammad Sarim Akhtar stance: hands on hips, silent judgment, cold stare when someone makes an absurd blunder)
      - 🐶 "This Is Fine Dog" (calmly sipping coffee in a burning room while production crashes)
      - 🧠 "Galaxy Brain" (hyper-over-engineering simple tasks into 4D cosmic chaos)
      - 🐱 "Smudge the Cat" (confused innocent dinner-table cat getting yelled at)
