@@ -187,6 +187,45 @@ function renderComic(comic) {
   if (window.lucide) window.lucide.createIcons();
 }
 
+// Helper: Resolve Real Meme Character Photo
+function resolveMemeImage(char, index, roleOffset = 0) {
+  if (!char) return "/memes/disappointed_fan.png";
+  const text = `${char.name || ''} ${char.emotion || ''} ${char.avatar || ''}`.toLowerCase();
+  
+  if (text.includes("disappoint") || text.includes("sarim") || text.includes("fan") || text.includes("judge") || text.includes("blunder") || text.includes("fail")) {
+    return "/memes/disappointed_fan.png";
+  }
+  if (text.includes("disaster") || text.includes("burn") || text.includes("fire") || text.includes("chaos") || text.includes("smug") || text.includes("ruin")) {
+    return "/memes/disaster_girl.png";
+  }
+  if (text.includes("cat") || text.includes("smudge") || text.includes("yell") || text.includes("blame") || text.includes("shout") || text.includes("salad")) {
+    return "/memes/woman_yelling_cat.png";
+  }
+  if (text.includes("distract") || text.includes("look") || text.includes("wander") || text.includes("boyfriend") || text.includes("jealous")) {
+    return "/memes/distracted_boyfriend.png";
+  }
+  if (text.includes("wait") || text.includes("lonely") || text.includes("pablo") || text.includes("alone") || text.includes("empty") || text.includes("delay")) {
+    return "/memes/waiting_pablo.png";
+  }
+  if (text.includes("awkward") || text.includes("gavin") || text.includes("grimace") || text.includes("cringe") || text.includes("nervous") || text.includes("embarrass")) {
+    return "/memes/awkward_gavin.png";
+  }
+  if (text.includes("chloe") || text.includes("side-eye") || text.includes("side eye") || text.includes("wut") || text.includes("skeptic") || text.includes("confus")) {
+    return "/memes/side_eye_chloe.png";
+  }
+
+  const defaultRoster = [
+    "/memes/disappointed_fan.png",
+    "/memes/side_eye_chloe.png",
+    "/memes/awkward_gavin.png",
+    "/memes/disaster_girl.png",
+    "/memes/distracted_boyfriend.png",
+    "/memes/woman_yelling_cat.png",
+    "/memes/waiting_pablo.png"
+  ];
+  return defaultRoster[(index * 2 + roleOffset) % defaultRoster.length];
+}
+
 // Helper: Create Panel Element
 function createPanelElement(panel, index) {
   const panelDiv = document.createElement("div");
@@ -216,31 +255,31 @@ function createPanelElement(panel, index) {
     visualArea.appendChild(soundBadge);
   }
 
-  // Character Center Stage with Visual Actors
+  // Character Center Stage with REAL MEME PHOTOS
   const stageContainer = document.createElement("div");
   stageContainer.className = "character-stage-container";
 
   let stageHtml = `<div class="stage-actors-wrapper">`;
   if (panel.character1 && panel.character1.name) {
-    const avatar1 = panel.character1.avatar || (panel.character1.voiceGender === "female" ? "👩" : "👨");
+    const memeImg1 = resolveMemeImage(panel.character1, index, 0);
     stageHtml += `
       <div class="stage-actor actor-left">
-        <div class="actor-glow-ring">
-          <span class="actor-emoji">${avatar1}</span>
+        <div class="actor-photo-frame">
+          <img src="${memeImg1}" class="actor-real-img" alt="${panel.character1.name}" />
         </div>
         <span class="actor-name">${panel.character1.name}</span>
-        <span class="actor-mood">${panel.character1.emotion || 'ready'}</span>
+        <span class="actor-mood">${panel.character1.emotion || 'acting'}</span>
       </div>
     `;
   }
 
   if (panel.character2 && panel.character2.name && panel.character2.dialogue) {
-    const avatar2 = panel.character2.avatar || (panel.character2.voiceGender === "female" ? "👩" : "🤖");
+    const memeImg2 = resolveMemeImage(panel.character2, index, 1);
     stageHtml += `
       <div class="stage-vs-badge">VS</div>
       <div class="stage-actor actor-right">
-        <div class="actor-glow-ring">
-          <span class="actor-emoji">${avatar2}</span>
+        <div class="actor-photo-frame">
+          <img src="${memeImg2}" class="actor-real-img" alt="${panel.character2.name}" />
         </div>
         <span class="actor-name">${panel.character2.name}</span>
         <span class="actor-mood">${panel.character2.emotion || 'reacting'}</span>
