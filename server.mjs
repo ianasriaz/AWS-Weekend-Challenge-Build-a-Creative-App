@@ -44,7 +44,14 @@ RULES:
    - Panel 3: The Climax / Twist (unexpected chaos, surprise reaction)
    - Panel 4: The Punchline / Resolution (hilarious conclusion or aftermath)
 2. Characters should have distinct personalities, sharp snappy dialogue, gender assignment, and comic timing.
-3. Every panel must have:
+3. INTELLIGENT MEME AUTO-CASTING:
+   - Analyze the situation context and automatically weave in or cast iconic meme archetypes and reactions whenever it amplifies the humor:
+     - 🤦‍♂️ "Disappointed Fan" (Muhammad Sarim Akhtar stance: hands on hips, silent judgment, cold glare when someone makes an absurd blunder)
+     - 🐶 "This Is Fine Dog" (calmly sipping coffee in a burning room while production crashes)
+     - 🧠 "Galaxy Brain" (hyper-over-engineering simple tasks into 4D cosmic chaos)
+     - 🐱 "Smudge the Cat" (confused innocent dinner-table cat getting yelled at)
+     - 🐸 "Evil Kermit / Inner Voice" (whispering dangerous ideas like 'deploy without tests')
+4. Every panel must have:
    - "panelNumber": 1, 2, 3, or 4
    - "caption": A short narrative voiceover (1 sentence)
    - "sceneDescription": A vivid description of the visuals, lighting, action, and character expressions
