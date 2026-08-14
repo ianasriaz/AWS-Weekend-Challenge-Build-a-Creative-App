@@ -226,7 +226,7 @@ function resolveMemeImage(panel, index) {
   if (fullStoryText.includes("unmute") || fullStoryText.includes("mic") || fullStoryText.includes("meeting") || fullStoryText.includes("gossip") || fullStoryText.includes("gavin") || fullStoryText.includes("awkward") || fullStoryText.includes("cringe") || fullStoryText.includes("boss") || fullStoryText.includes("zoom")) {
     return "/memes/awkward_gavin.png";
   }
-  if (fullStoryText.includes("grocer") || fullStoryText.includes("milk") || fullStoryText.includes("egg") || fullStoryText.includes("forgot") || fullStoryText.includes("door") || fullStoryText.includes("push") || fullStoryText.includes("pull") || fullStoryText.includes("semicolon") || fullStoryText.includes("disappoint")) {
+  if (fullStoryText.includes("cricket") || fullStoryText.includes("catch") || fullStoryText.includes("fielder") || fullStoryText.includes("match") || fullStoryText.includes("stadium") || fullStoryText.includes("grocer") || fullStoryText.includes("milk") || fullStoryText.includes("egg") || fullStoryText.includes("forgot") || fullStoryText.includes("door") || fullStoryText.includes("push") || fullStoryText.includes("pull") || fullStoryText.includes("semicolon") || fullStoryText.includes("disappoint") || fullStoryText.includes("sarim")) {
     return "/memes/disappointed_fan.png";
   }
 
