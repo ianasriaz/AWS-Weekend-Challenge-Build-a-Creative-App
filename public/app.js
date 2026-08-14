@@ -279,7 +279,6 @@ function createPanelElement(panel, index) {
     const memeShowcase = document.createElement("div");
     memeShowcase.className = "meme-punchline-showcase";
     memeShowcase.innerHTML = `
-      <div class="meme-reaction-tag">⚡ FINAL REACTION</div>
       <div class="meme-photo-wrapper">
         <img src="${memeImg}" class="meme-hero-img" alt="Meme Reaction" />
       </div>
