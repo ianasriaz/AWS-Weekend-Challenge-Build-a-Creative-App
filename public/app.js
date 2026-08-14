@@ -188,42 +188,58 @@ function renderComic(comic) {
 }
 
 // Helper: Resolve Real Meme Character Photo
-function resolveMemeImage(char, index, roleOffset = 0) {
-  if (!char) return "/memes/disappointed_fan.png";
-  const text = `${char.name || ''} ${char.emotion || ''} ${char.avatar || ''}`.toLowerCase();
-  
-  if (text.includes("disappoint") || text.includes("sarim") || text.includes("fan") || text.includes("judge") || text.includes("blunder") || text.includes("fail")) {
-    return "/memes/disappointed_fan.png";
-  }
-  if (text.includes("disaster") || text.includes("burn") || text.includes("fire") || text.includes("chaos") || text.includes("smug") || text.includes("ruin")) {
-    return "/memes/disaster_girl.png";
-  }
-  if (text.includes("cat") || text.includes("smudge") || text.includes("yell") || text.includes("blame") || text.includes("shout") || text.includes("salad")) {
-    return "/memes/woman_yelling_cat.png";
-  }
-  if (text.includes("distract") || text.includes("look") || text.includes("wander") || text.includes("boyfriend") || text.includes("jealous")) {
-    return "/memes/distracted_boyfriend.png";
-  }
-  if (text.includes("wait") || text.includes("lonely") || text.includes("pablo") || text.includes("alone") || text.includes("empty") || text.includes("delay")) {
-    return "/memes/waiting_pablo.png";
-  }
-  if (text.includes("awkward") || text.includes("gavin") || text.includes("grimace") || text.includes("cringe") || text.includes("nervous") || text.includes("embarrass")) {
-    return "/memes/awkward_gavin.png";
-  }
-  if (text.includes("chloe") || text.includes("side-eye") || text.includes("side eye") || text.includes("wut") || text.includes("skeptic") || text.includes("confus")) {
-    return "/memes/side_eye_chloe.png";
+function resolveMemeImage(panel, index) {
+  // 1. Direct explicit key from Bedrock
+  const explicitKey = panel?.memeReaction || currentComic?.memeReaction;
+  const MEME_MAP = {
+    "disaster_girl": "/memes/disaster_girl.png",
+    "waiting_pablo": "/memes/waiting_pablo.png",
+    "distracted_boyfriend": "/memes/distracted_boyfriend.png",
+    "woman_yelling_cat": "/memes/woman_yelling_cat.png",
+    "side_eye_chloe": "/memes/side_eye_chloe.png",
+    "awkward_gavin": "/memes/awkward_gavin.png",
+    "disappointed_fan": "/memes/disappointed_fan.png"
+  };
+
+  if (explicitKey && MEME_MAP[explicitKey]) {
+    return MEME_MAP[explicitKey];
   }
 
-  const defaultRoster = [
+  // 2. Comprehensive contextual search across entire story
+  const fullStoryText = `${currentComic?.title || ''} ${currentComic?.logline || ''} ${panel?.caption || ''} ${panel?.sceneDescription || ''} ${panel?.character1?.dialogue || ''} ${panel?.character2?.dialogue || ''}`.toLowerCase();
+
+  if (fullStoryText.includes("plumb") || fullStoryText.includes("flood") || fullStoryText.includes("burn") || fullStoryText.includes("fire") || fullStoryText.includes("disaster") || fullStoryText.includes("volcano") || fullStoryText.includes("chaos") || fullStoryText.includes("pool") || fullStoryText.includes("water leak")) {
+    return "/memes/disaster_girl.png";
+  }
+  if (fullStoryText.includes("delay") || fullStoryText.includes("airport") || fullStoryText.includes("flight") || fullStoryText.includes("wait") || fullStoryText.includes("queue") || fullStoryText.includes("hours") || fullStoryText.includes("lonely") || fullStoryText.includes("bench")) {
+    return "/memes/waiting_pablo.png";
+  }
+  if (fullStoryText.includes("diet") || fullStoryText.includes("donut") || fullStoryText.includes("pizza") || fullStoryText.includes("tempt") || fullStoryText.includes("cheat") || fullStoryText.includes("bakery") || fullStoryText.includes("distract") || fullStoryText.includes("boyfriend")) {
+    return "/memes/distracted_boyfriend.png";
+  }
+  if (fullStoryText.includes("restaurant") || fullStoryText.includes("soup") || fullStoryText.includes("waiter") || fullStoryText.includes("cat") || fullStoryText.includes("salad") || fullStoryText.includes("yell") || fullStoryText.includes("scream") || fullStoryText.includes("customer")) {
+    return "/memes/woman_yelling_cat.png";
+  }
+  if (fullStoryText.includes("fridge") || fullStoryText.includes("excuse") || fullStoryText.includes("homework") || fullStoryText.includes("chloe") || fullStoryText.includes("side-eye") || fullStoryText.includes("dentist") || fullStoryText.includes("wut") || fullStoryText.includes("skeptic")) {
+    return "/memes/side_eye_chloe.png";
+  }
+  if (fullStoryText.includes("unmute") || fullStoryText.includes("mic") || fullStoryText.includes("meeting") || fullStoryText.includes("gossip") || fullStoryText.includes("gavin") || fullStoryText.includes("awkward") || fullStoryText.includes("cringe") || fullStoryText.includes("boss") || fullStoryText.includes("zoom")) {
+    return "/memes/awkward_gavin.png";
+  }
+  if (fullStoryText.includes("grocer") || fullStoryText.includes("milk") || fullStoryText.includes("egg") || fullStoryText.includes("forgot") || fullStoryText.includes("door") || fullStoryText.includes("push") || fullStoryText.includes("pull") || fullStoryText.includes("semicolon") || fullStoryText.includes("disappoint")) {
+    return "/memes/disappointed_fan.png";
+  }
+
+  const defaultPool = [
     "/memes/disappointed_fan.png",
-    "/memes/side_eye_chloe.png",
-    "/memes/awkward_gavin.png",
     "/memes/disaster_girl.png",
-    "/memes/distracted_boyfriend.png",
     "/memes/woman_yelling_cat.png",
-    "/memes/waiting_pablo.png"
+    "/memes/distracted_boyfriend.png",
+    "/memes/waiting_pablo.png",
+    "/memes/awkward_gavin.png",
+    "/memes/side_eye_chloe.png"
   ];
-  return defaultRoster[(index * 2 + roleOffset) % defaultRoster.length];
+  return defaultPool[index % defaultPool.length];
 }
 
 // Helper: Create Panel Element
@@ -258,8 +274,7 @@ function createPanelElement(panel, index) {
 
   // Panel 4: Grand Finale Large Meme Showcase
   if (isFinalPunchline) {
-    const primaryChar = panel.character2 || panel.character1;
-    const memeImg = resolveMemeImage(primaryChar, index);
+    const memeImg = resolveMemeImage(panel, index);
     
     const memeShowcase = document.createElement("div");
     memeShowcase.className = "meme-punchline-showcase";

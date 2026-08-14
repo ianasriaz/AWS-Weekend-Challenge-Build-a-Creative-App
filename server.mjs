@@ -44,24 +44,23 @@ RULES:
    - Panel 3: The Climax / Twist (unexpected chaos, surprise reaction)
    - Panel 4: The Punchline / Resolution (hilarious conclusion or aftermath)
 2. Characters should have distinct personalities, sharp snappy dialogue, gender assignment, and comic timing.
-3. INTELLIGENT MEME AUTO-CASTING:
-   - Analyze the situation context and automatically weave in or cast iconic meme archetypes and reactions whenever it amplifies the humor:
-     - 🥸 "Mr. Bean" (mischievous sneaky schemes, bizarre physical comedy solutions, or impatiently waiting by the roadside tapping fingers)
-     - 👀 "Side-Eye Chloe / WUT" (skeptical buck-toothed side-eye glare when someone says something totally baffling)
-     - 😬 "Awkward Gavin / Concerned Face" (strained grimace-smile when caught in a painfully uncomfortable situation)
-     - 🤦‍♂️ "Disappointed Fan" (Muhammad Sarim Akhtar stance: hands on hips, silent judgment, cold stare when someone makes an absurd blunder)
-     - 🐶 "This Is Fine Dog" (calmly sipping coffee in a burning room while production crashes)
-     - 🧠 "Galaxy Brain" (hyper-over-engineering simple tasks into 4D cosmic chaos)
-     - 🐱 "Smudge the Cat" (confused innocent dinner-table cat getting yelled at)
-     - 🐸 "Evil Kermit / Inner Voice" (whispering dangerous ideas like 'deploy without tests')
+3. INTELLIGENT MEME AUTO-MATCHING:
+   - For Panel 4 (The Grand Punchline), you MUST select the single most accurate "memeReaction" key that represents the punchline reaction:
+     - "disaster_girl" -> for chaotic accidents, explosions, water leaks, kitchen disasters, or mischievous smirks.
+     - "waiting_pablo" -> for endless delays, long queues, waiting at the mall, or loneliness.
+     - "distracted_boyfriend" -> for diet cheats, shiny temptations, wandering attention, or ditching commitments.
+     - "woman_yelling_cat" -> for shouting over food/bills, dinner arguments, or innocent confused reactions.
+     - "side_eye_chloe" -> for skeptical squinting, ridiculous excuses, disbelief, or absurd claims.
+     - "awkward_gavin" -> for unmuted mic blunders, cringe moments, caught red-handed, or forced awkward smiles.
+     - "disappointed_fan" -> for forgotten groceries, obvious blunders, failed DIY, or hands-on-hips silent judgment.
 4. Every panel must have:
    - "panelNumber": 1, 2, 3, or 4
    - "caption": A short narrative voiceover (1 sentence)
    - "sceneDescription": A vivid description of the visuals, lighting, action, and character expressions
-   - "character1": { "name": "Character Name", "dialogue": "Snappy line", "emotion": "surprised/smug/panicking/etc", "avatar": "emoji", "voiceGender": "female/male" }
-   - "character2": { "name": "Character Name or null", "dialogue": "Response or empty", "emotion": "neutral/laughing/etc", "avatar": "emoji", "voiceGender": "male/female" }
+   - "character1": { "name": "Character Name", "dialogue": "Dialogue text", "emotion": "happy/panicking/etc", "avatar": "emoji", "voiceGender": "female/male" }
+   - "character2": { "name": "Character Name or null", "dialogue": "Reply text", "emotion": "surprised/worried/etc", "avatar": "emoji", "voiceGender": "male/female" }
    - "soundEffect": A classic comic sound word (e.g., "KABOOM!", "BZZZZT!", "POW!", "SLURP!", "404 ERROR!", "PING!")
-   - "visualPrompt": A rich prompt description of the artwork for this panel
+   - "memeReaction": (REQUIRED for Panel 4) One of ["disaster_girl", "waiting_pablo", "distracted_boyfriend", "woman_yelling_cat", "side_eye_chloe", "awkward_gavin", "disappointed_fan"]
    - "colorScheme": { "bgGradient": "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", "accent": "#fbbf24" }
 
 OUTPUT FORMAT:
@@ -79,11 +78,21 @@ Structure:
       "panelNumber": 1,
       "caption": "Narrative caption",
       "sceneDescription": "Scene description",
-      "character1": { "name": "Name", "dialogue": "Dialogue text", "emotion": "happy", "avatar": "🐱", "voiceGender": "female" },
-      "character2": { "name": "Name", "dialogue": "Reply text", "emotion": "surprised", "avatar": "🤖", "voiceGender": "male" },
+      "character1": { "name": "Name", "dialogue": "Dialogue text", "emotion": "happy", "avatar": "🧑", "voiceGender": "female" },
+      "character2": { "name": "Name", "dialogue": "Reply text", "emotion": "surprised", "avatar": "👩", "voiceGender": "male" },
       "soundEffect": "BZZT!",
-      "visualPrompt": "Prompt description",
+      "memeReaction": null,
       "colorScheme": { "bgGradient": "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", "accent": "#fbbf24" }
+    },
+    {
+      "panelNumber": 4,
+      "caption": "Final punchline caption",
+      "sceneDescription": "Scene description",
+      "character1": { "name": "Name", "dialogue": "Punchline line 1", "emotion": "shocked", "avatar": "🧑", "voiceGender": "female" },
+      "character2": { "name": "Name", "dialogue": "Punchline line 2", "emotion": "speechless", "avatar": "👩", "voiceGender": "male" },
+      "soundEffect": "KABOOM!",
+      "memeReaction": "disaster_girl",
+      "colorScheme": { "bgGradient": "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", "accent": "#ef4444" }
     }
   ]
 }
