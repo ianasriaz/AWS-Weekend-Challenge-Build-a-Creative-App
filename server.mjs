@@ -1,0 +1,278 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { BedrockRuntimeClient, ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
+import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import path from "path";
+import { fileURLToPath } from "url";
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const REGION = process.env.AWS_REGION || "us-east-1";
+
+app.use(cors());
+app.use(express.json({ limit: "25mb" }));
+app.use(express.static(path.join(__dirname, "public")));
+
+// Initialize AWS Clients
+const bedrockClient = new BedrockRuntimeClient({ region: REGION });
+const pollyClient = new PollyClient({ region: REGION });
+const s3Client = new S3Client({ region: REGION });
+
+// Primary & Fallback Bedrock Models
+const BEDROCK_MODELS = [
+  "us.amazon.nova-lite-v1:0",
+  "us.amazon.nova-micro-v1:0",
+  "us.amazon.nova-pro-v1:0"
+];
+
+// System Prompt for Comic Narrative Generation
+const COMIC_SYSTEM_PROMPT = `
+You are "ComicCraft AI", a world-class comic book author and cartoon storyboard artist.
+Your job is to take user prompts and craft an engaging, hilarious, visually striking 4-PANEL COMIC STRIP.
+
+RULES:
+1. The comic must strictly have exactly 4 panels:
+   - Panel 1: The Setup (introduce the characters, setting, and initial premise)
+   - Panel 2: The Action/Escalation (complication begins or wacky experiment starts)
+   - Panel 3: The Climax / Twist (unexpected chaos, surprise reaction)
+   - Panel 4: The Punchline / Resolution (hilarious conclusion or aftermath)
+2. Characters should have distinct personalities, sharp snappy dialogue, gender assignment, and comic timing.
+3. Every panel must have:
+   - "panelNumber": 1, 2, 3, or 4
+   - "caption": A short narrative voiceover (1 sentence)
+   - "sceneDescription": A vivid description of the visuals, lighting, action, and character expressions
+   - "character1": { "name": "Character Name", "dialogue": "Snappy line", "emotion": "surprised/smug/panicking/etc", "avatar": "emoji", "voiceGender": "female/male" }
+   - "character2": { "name": "Character Name or null", "dialogue": "Response or empty", "emotion": "neutral/laughing/etc", "avatar": "emoji", "voiceGender": "male/female" }
+   - "soundEffect": A classic comic sound word (e.g., "KABOOM!", "BZZZZT!", "POW!", "SLURP!", "404 ERROR!", "PING!")
+   - "visualPrompt": A rich prompt description of the artwork for this panel
+   - "colorScheme": { "bgGradient": "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", "accent": "#fbbf24" }
+
+OUTPUT FORMAT:
+You MUST reply with ONLY a raw valid JSON object (no markdown fences, no formatting text).
+Structure:
+{
+  "title": "Catchy Comic Title",
+  "logline": "1-sentence funny summary",
+  "genre": "Comedy",
+  "characters": [
+    { "name": "Name", "role": "Role", "voiceGender": "female" }
+  ],
+  "panels": [
+    {
+      "panelNumber": 1,
+      "caption": "Narrative caption",
+      "sceneDescription": "Scene description",
+      "character1": { "name": "Name", "dialogue": "Dialogue", "emotion": "happy", "avatar": "🐱", "voiceGender": "female" },
+      "character2": { "name": "Name", "dialogue": "Reply", "emotion": "surprised", "avatar": "🤖", "voiceGender": "male" },
+      "soundEffect": "BZZT!",
+      "visualPrompt": "Prompt",
+      "colorScheme": { "bgGradient": "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", "accent": "#fbbf24" }
+    }
+  ]
+}
+`;
+
+// System Prompt for Live Savage Roaster Arena
+const ROASTER_SYSTEM_PROMPT = `
+You are the "AWS Roast Master AI", a legendary standup comedian and brutally witty tech critic.
+Your job is to take user descriptions of themselves, their friends, habits, bugs, or embarrassing situations and deliver an unforgettable, hilarious, savage-yet-playful roast.
+
+You must output a raw JSON object with:
+1. "roastTitle": Catchy roast headline (e.g., "The Kubernetes Over-Engineer Syndrome")
+2. "burnLevel": "EMOTIONAL DAMAGE 💀 (10/10)" / "THIRD DEGREE BURN 🔥 (9/10)" / "FATAL LOGIC ERROR ⚠️ (8.5/10)"
+3. "savageRoast": A 2-3 paragraph spoken roast monologue full of punchlines, tech metaphors, and comedy roasts.
+4. "punchlineOneLiner": A 1-sentence killer one-liner ready for Twitter/social sharing.
+5. "recommendedSfx": "sad-trombone" / "vine-boom" / "airhorn" / "laugh-track"
+6. "comic": A complete 4-panel comic strip depicting this exact roast scenario (following the 4-panel comic structure with captions, character dialogues, sound effects, and color schemes).
+
+OUTPUT FORMAT:
+Return ONLY the raw valid JSON object.
+`;
+
+// Helper: Extract JSON safely
+function extractJson(text) {
+  if (!text) throw new Error("Empty response from model");
+  try {
+    const clean = text.replace(/^```json\s*/im, "").replace(/^```\s*/im, "").replace(/\s*```$/m, "").trim();
+    return JSON.parse(clean);
+  } catch (e) {
+    const firstBrace = text.indexOf("{");
+    const lastBrace = text.lastIndexOf("}");
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      const sub = text.substring(firstBrace, lastBrace + 1);
+      return JSON.parse(sub);
+    }
+    throw new Error(`Failed to parse JSON: ${e.message}. Raw text: ${text.substring(0, 100)}...`);
+  }
+}
+
+// Helper: Call Bedrock with Fallbacks
+async function callBedrock(promptText, systemPrompt) {
+  let lastError = null;
+  for (const modelId of BEDROCK_MODELS) {
+    try {
+      console.log(`[Bedrock] Calling ${modelId}...`);
+      const command = new ConverseCommand({
+        modelId,
+        messages: [{ role: "user", content: [{ text: promptText }] }],
+        system: [{ text: systemPrompt }],
+        inferenceConfig: { maxTokens: 2500, temperature: 0.85, topP: 0.9 }
+      });
+
+      const response = await bedrockClient.send(command);
+      const textOutput = response.output?.message?.content?.[0]?.text;
+      if (textOutput) {
+        const parsed = extractJson(textOutput);
+        parsed.sourceModel = modelId;
+        return parsed;
+      }
+    } catch (err) {
+      console.warn(`[Bedrock] ${modelId} failed: ${err.message}`);
+      lastError = err;
+    }
+  }
+  throw new Error(`Bedrock failed: ${lastError?.message || "Unknown error"}`);
+}
+
+
+// Routes
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", service: "ComicCraft & Live Roaster Studio", region: REGION, models: BEDROCK_MODELS });
+});
+
+// Route: Generate Comic
+app.post("/api/generate-comic", async (req, res) => {
+  try {
+    const { prompt, style, genre } = req.body;
+    if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+
+    const promptText = `Create a 4-panel comic strip based on:
+Prompt: "${prompt}"
+Style: ${style || "Retro Comic Book"}
+Genre: ${genre || "Comedy"}
+Make it hilarious, witty, with sharp punchlines! Return ONLY raw JSON.`;
+
+    const comicData = await callBedrock(promptText, COMIC_SYSTEM_PROMPT);
+    res.json({ success: true, comic: comicData });
+  } catch (error) {
+    console.error("[Generate Error]:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Route: Live Savage Roaster
+app.post("/api/roast-me", async (req, res) => {
+  try {
+    const { description, targetType = "self" } = req.body;
+    if (!description || !description.trim()) {
+      return res.status(400).json({ error: "Please provide a situation or person to roast!" });
+    }
+
+    console.log(`[Roaster] Roasting situation (${targetType}): "${description.substring(0, 50)}..."`);
+    const promptText = `Deliver an outrageously funny, savage roast of this situation/person:
+Target / Scenario: "${description}"
+Target Type: ${targetType}
+Make the roast hilarious, witty, and create an accompanying 4-panel comic strip showing the catastrophe! Return ONLY raw JSON.`;
+
+    const roastData = await callBedrock(promptText, ROASTER_SYSTEM_PROMPT);
+    res.json({ success: true, roast: roastData });
+  } catch (error) {
+    console.error("[Roaster Error]:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Route: Reroll Single Panel
+app.post("/api/reroll-panel", async (req, res) => {
+  try {
+    const { comic, panelNumber } = req.body;
+    const promptText = `Given this comic story:
+Title: "${comic.title}"
+Existing Panels: ${JSON.stringify(comic.panels)}
+Generate an alternative version for PANEL ${panelNumber}. Return ONLY raw JSON for this panel.`;
+
+    const newPanel = await callBedrock(promptText, COMIC_SYSTEM_PROMPT);
+    res.json({ success: true, panel: newPanel.panels ? newPanel.panels[0] : newPanel });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Route: Synthesize Polly Speech
+app.post("/api/synthesize-voice", async (req, res) => {
+  try {
+    const { text, voiceId = "Ruth", engine = "neural" } = req.body;
+    if (!text) return res.status(400).json({ error: "Text is required" });
+
+    let command = new SynthesizeSpeechCommand({ OutputFormat: "mp3", Text: text, VoiceId: voiceId, Engine: engine });
+    let pollyRes;
+    try {
+      pollyRes = await pollyClient.send(command);
+    } catch (err) {
+      command = new SynthesizeSpeechCommand({ OutputFormat: "mp3", Text: text, VoiceId: voiceId, Engine: "standard" });
+      pollyRes = await pollyClient.send(command);
+    }
+
+    if (pollyRes.AudioStream) {
+      const chunks = [];
+      for await (const chunk of pollyRes.AudioStream) chunks.push(chunk);
+      const buffer = Buffer.concat(chunks);
+      res.json({ success: true, audioBase64: `data:audio/mp3;base64,${buffer.toString("base64")}`, voiceId });
+    } else {
+      res.status(500).json({ error: "No audio stream returned" });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Route: Multi-Voice Duet
+app.post("/api/synthesize-duet", async (req, res) => {
+  try {
+    const { parts } = req.body;
+    const audioClips = [];
+    for (const part of parts) {
+      if (!part.text?.trim()) continue;
+      const vId = part.voiceId || "Ruth";
+      let command = new SynthesizeSpeechCommand({ OutputFormat: "mp3", Text: part.text, VoiceId: vId, Engine: "neural" });
+      let pollyRes;
+      try {
+        pollyRes = await pollyClient.send(command);
+      } catch (err) {
+        command = new SynthesizeSpeechCommand({ OutputFormat: "mp3", Text: part.text, VoiceId: vId, Engine: "standard" });
+        pollyRes = await pollyClient.send(command);
+      }
+      if (pollyRes.AudioStream) {
+        const chunks = [];
+        for await (const chunk of pollyRes.AudioStream) chunks.push(chunk);
+        audioClips.push({ speaker: part.speaker, voiceId: vId, audioBase64: `data:audio/mp3;base64,${Buffer.concat(chunks).toString("base64")}` });
+      }
+    }
+    res.json({ success: true, clips: audioClips });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n======================================================`);
+    console.log(`🔥 ComicCraft & Live Roaster Studio is running on http://localhost:${PORT}`);
+    console.log(`📍 AWS Region: ${REGION}`);
+    console.log(`⚡ Bedrock Models: ${BEDROCK_MODELS.join(", ")}`);
+    console.log(`======================================================\n`);
+  });
+}
+
+export default app;
